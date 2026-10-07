@@ -3255,7 +3255,13 @@ $("#pr-prec").addEventListener("click", () => { presSel.d = piuGiorni(presSel.d,
 $("#pr-succ").addEventListener("click", () => { presSel.d = piuGiorni(presSel.d, 7); renderPresenze(); });
 $("#pr-oggi").addEventListener("click", () => { presSel.d = oggi(); renderPresenze(); });
 window.addEventListener("online", () => presPianifica(500));
-document.addEventListener("visibilitychange", () => { if (!document.hidden && vista === "v-presenze") { presPianifica(300); presLeggi(); } });
+// le presenze segnate senza rete partono appena l'app torna in primo piano, qualunque schermata sia aperta
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) return;
+  if (presInAttesa()) presPianifica(300);
+  if (vista === "v-presenze") presLeggi();
+});
+if (presInAttesa()) presPianifica(2000);
 // ogni 30 secondi, solo se la schermata Presenze è aperta e qualcuno l'ha toccata negli ultimi 5 minuti
 // (un telefono dimenticato acceso non consuma il tempo giornaliero concesso da Google allo script)
 setInterval(() => {
