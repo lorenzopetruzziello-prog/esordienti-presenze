@@ -1,0 +1,7 @@
+*.xlsx
+*.xls
+*.csv
+esordienti-backup-*.json
+.claude/
+Thumbs.db
+
