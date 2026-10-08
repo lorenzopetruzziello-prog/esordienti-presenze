@@ -753,6 +753,56 @@ body.in-pres #gruppi{display:none}
 input,select,textarea,.campo,textarea.campo.diario{font-size:16px}
 /* stato del foglio in alto: il pallino pulsa mentre si collega o invia */
 .gara-chip.att i{animation:pulsa 1s infinite}
+/* ===================== rifiniture e movimento =====================
+   Stesso stile di prima (acqua, vetro, luce sul fondo); in più:
+   - un indicatore che scorre sotto la scelta attiva (barra in basso, gruppi, segmenti)
+   - il cambio di sezione scorre nella direzione della barra
+   - presenze: riepilogo fisso in alto mentre si scorre, chi manca da segnare si vede subito */
+.con-pillola{position:relative; isolation:isolate}
+.con-pillola > button{position:relative; z-index:1}
+.con-pillola > button[aria-pressed="true"]{background:transparent !important; box-shadow:none !important}
+.gruppi.con-pillola > button[aria-pressed="true"], .seg.con-pillola > button[aria-pressed="true"]{color:var(--testo-cloro)}
+.navbar-in.con-pillola > button[aria-pressed="true"]::before{content:none}
+.pillola{position:absolute; top:0; left:0; z-index:0; border-radius:8px; pointer-events:none; will-change:transform, width;
+  background:linear-gradient(135deg, var(--cloro), var(--cloro2)); box-shadow:var(--bagliore); transition:opacity .15s}
+.navbar-in .pillola{border-radius:16px; background:linear-gradient(135deg, rgba(63,224,238,.30), rgba(27,164,222,.20));
+  box-shadow:inset 0 0 0 1px rgba(63,224,238,.35), 0 6px 16px -8px rgba(63,224,238,.6)}
+:where(:root[data-theme="sole"],:root[data-theme="light"]) .navbar-in .pillola{background:linear-gradient(135deg, rgba(18,187,211,.22), rgba(10,130,184,.16))}
+
+/* cambio di sezione: una dissolvenza breve, niente spostamenti */
+.vista.attiva{animation:appare .18s ease-out}
+@keyframes appare{from{opacity:0}}
+
+.pr-riepilogo{position:sticky; top:var(--alt-testa, 56px); z-index:5; margin:-13px -13px 8px; padding:12px 13px 11px;
+  border-radius:18px 18px 12px 12px; background:var(--base-vetro); border-bottom:1px solid var(--vetro-bordo); box-shadow:0 10px 18px -16px rgba(0,0,0,.7)}
+.pr-avanz{display:flex; height:7px; border-radius:4px; overflow:hidden; background:rgba(0,0,0,.22); margin-top:9px}
+:where(:root[data-theme="sole"],:root[data-theme="light"]) .pr-avanz{background:var(--pozzo)}
+.pr-avanz i{display:block; height:100%; transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.pr-avanz i.ok{background:var(--ok)} .pr-avanz i.no{background:var(--gap)} .pr-avanz i.vuoto{background:transparent}
+.pr-conti .resta b{color:var(--en2)}
+.pr-nome{cursor:pointer; -webkit-user-select:none; user-select:none}
+.pr-riga.da-segnare .pr-nome b::before{content:""; display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--en2); margin-right:8px; vertical-align:.18em}
+/* ---------- impostazioni: righe compatte, una scelta per riga ---------- */
+.imp-lista{padding:2px 14px}
+.imp-riga{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px 12px; min-height:56px; padding:9px 0; border-top:1px solid var(--vetro-bordo)}
+.imp-riga:first-child{border-top:0}
+.imp-riga > span, .imp-riga > label{font-weight:650; font-size:15.5px; color:var(--gesso)}
+.imp-riga small{display:block; font-weight:500; font-size:13px; color:var(--tenue); margin-top:1px}
+.imp-riga .seg{flex:none}
+.imp-riga .seg button{padding:7px 11px; font-size:14px}
+.imp-select{width:auto; min-width:160px; padding:8px 34px 8px 11px; font-size:16px; -webkit-appearance:none; appearance:none; cursor:pointer;
+  background-image:linear-gradient(45deg, transparent 50%, var(--tenue) 50%), linear-gradient(135deg, var(--tenue) 50%, transparent 50%);
+  background-position:calc(100% - 17px) 52%, calc(100% - 12px) 52%; background-size:5px 5px; background-repeat:no-repeat}
+.imp-select option{background:var(--vasca); color:var(--gesso)}
+.interr{width:52px; height:31px; flex:none; border-radius:16px; border:1px solid var(--vetro-bordo); background:rgba(0,0,0,.28); position:relative; padding:0; cursor:pointer; transition:background .2s}
+:where(:root[data-theme="sole"],:root[data-theme="light"]) .interr{background:var(--pozzo)}
+.interr::after{content:""; position:absolute; top:3px; left:3px; width:23px; height:23px; border-radius:50%; background:var(--gesso); box-shadow:0 2px 6px rgba(0,0,0,.3); transition:transform .25s cubic-bezier(.32,.72,0,1)}
+:where(:root[data-theme="sole"],:root[data-theme="light"]) .interr::after{background:#fff}
+.interr[aria-checked="true"]{background:linear-gradient(135deg, var(--cloro), var(--cloro2)); border-color:transparent}
+.interr[aria-checked="true"]::after{transform:translateX(21px); background:#fff}
+.interr[disabled]{opacity:.4; cursor:default}
+/* animazioni ridotte, scelte dalle impostazioni */
+body.calmo *, body.calmo *::before, body.calmo *::after{animation:none !important; transition:none !important}
 </style>
 </head>
 <body>
@@ -1015,8 +1065,21 @@ input,select,textarea,.campo,textarea.campo.diario{font-size:16px}
     </div>
   </div>
   <div class="sez">
-    <div class="sez-testa"><h2>Carattere</h2></div>
-    <div class="pannello"><div class="font-griglia" id="font-sel" role="group" aria-label="Carattere della pagina"></div></div>
+    <div class="sez-testa"><h2>Aspetto</h2></div>
+    <div class="pannello imp-lista">
+      <div class="imp-riga"><span>Tema</span><div class="seg" id="imp-tema" role="group" aria-label="Tema"></div></div>
+      <div class="imp-riga"><span>Testo</span><div class="seg" id="imp-testo" role="group" aria-label="Dimensione del testo"></div></div>
+      <div class="imp-riga"><label for="font-sel">Carattere</label><select class="campo imp-select" id="font-sel"></select></div>
+      <div class="imp-riga"><span>Animazioni</span><div class="seg" id="imp-moto" role="group" aria-label="Animazioni"></div></div>
+    </div>
+  </div>
+  <div class="sez">
+    <div class="sez-testa"><h2>A bordo vasca</h2></div>
+    <div class="pannello imp-lista">
+      <div class="imp-riga"><span>All'apertura</span><div class="seg" id="imp-apri" role="group" aria-label="Schermata all'apertura"></div></div>
+      <div class="imp-riga"><span id="imp-acceso-et">Schermo sempre acceso<small id="imp-acceso-nota">Mentre l'app è aperta, non si spegne</small></span>
+        <button class="interr" id="imp-acceso" role="switch" aria-checked="false" aria-labelledby="imp-acceso-et"></button></div>
+    </div>
   </div>
   <div class="sez">
     <div class="sez-testa"><h2>Foglio Google</h2></div>
@@ -1087,7 +1150,6 @@ input,select,textarea,.campo,textarea.campo.diario{font-size:16px}
     <button data-v="v-presenze" aria-pressed="false"><svg><use href="#i-presenze"/></svg>Presenze</button>
     <button data-v="v-settimana" aria-pressed="false"><svg><use href="#i-sett"/></svg>Settimana</button>
     <button data-v="v-obiettivi" aria-pressed="false"><svg><use href="#i-obiettivo"/></svg>Obiettivi</button>
-    <button data-v="v-anno" aria-pressed="false"><svg><use href="#i-anno"/></svg>Anno</button>
     <button data-v="v-foglio" aria-pressed="false"><svg><use href="#i-impostazioni"/></svg>Impostazioni</button>
   </div>
 </nav>
@@ -1495,7 +1557,7 @@ let statoF = 1;
 let inModifica = null;
 let inserimento = null;   // {id, dopo}: dove va la prossima serie; vuoto = in fondo
 let ultimaAggiunta = null;
-const vibra = ms => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e){} };
+const vibra = ms => { if (pref.vibra === false) return; try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e){} };
 
 /* ================= foglio, conferme, toast ================= */
 function apriFoglio(costruisci){
@@ -1558,7 +1620,7 @@ function copiaTesto(testo){
 
 /* ================= testata: gruppi, tema ================= */
 function renderGruppi(){
-  const c = $("#gruppi"); c.innerHTML = "";
+  const c = $("#gruppi"); c.querySelectorAll(":scope > button").forEach(b => b.remove());
   GRUPPI.forEach(G => c.append(el("button", {"aria-pressed":String(G.id === pref.gruppo), onclick:() => {
     if (G.id === pref.gruppo) return;
     pref.gruppo = G.id; salva.pref(); annullaModifica(true); renderTutto();
@@ -1579,6 +1641,7 @@ $("#tema").addEventListener("click", () => {
 /* ================= navigazione ================= */
 function vai(v){
   vista = v;
+  if (pref.ultima !== v){ pref.ultima = v; salva.pref(); }
   $$(".vista").forEach(s => s.classList.toggle("attiva", s.id === v));
   $$("#navbar button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === v)));
   window.scrollTo({top:0});
@@ -2614,16 +2677,51 @@ function impostaModo(m){
 $("#modo-scrivo").addEventListener("click", () => impostaModo("scrivo"));
 $("#modo-guardo").addEventListener("click", () => impostaModo("guardo"));
 
-/* ================= CARATTERE ================= */
-let anteprimeFont = false;
+/* ================= ASPETTO E USO (impostazioni di questo telefono) ================= */
+const TESTI = [["normale", "Normale", 1], ["grande", "Grande", 1.1], ["enorme", "Molto grande", 1.2]];
+function applicaPreferenze(){
+  const z = (TESTI.find(t => t[0] === pref.testo) || TESTI[0])[2];
+  document.body.style.zoom = z === 1 ? "" : String(z);
+  document.body.classList.toggle("calmo", pref.moto === "no");
+  tieniAcceso();
+}
+/* schermo sempre acceso: il telefono non si spegne mentre l'app è in primo piano */
+let blocco = null;
+const accesoPossibile = () => "wakeLock" in navigator;
+async function tieniAcceso(){
+  if (!accesoPossibile()) return;
+  try {
+    if (pref.acceso && !document.hidden && !blocco){
+      blocco = await navigator.wakeLock.request("screen");
+      blocco.addEventListener("release", () => { blocco = null; });
+    } else if (!pref.acceso && blocco){ await blocco.release(); blocco = null; }
+  } catch (e){ blocco = null; }
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) tieniAcceso(); });
+
+function segmenti(box, voci, attuale, scegli){
+  box.querySelectorAll(":scope > button").forEach(b => b.remove());
+  voci.forEach(([v, et]) => box.append(el("button", {"aria-pressed":String(v === attuale), onclick:() => { if (v !== attuale) scegli(v); }}, et)));
+}
+function interruttore(b, acceso, cambia, disattivo){
+  b.setAttribute("aria-checked", String(!!acceso)); b.disabled = !!disattivo;
+  b.onclick = () => cambia(!acceso);
+}
 function renderFont(){
-  if (!anteprimeFont){ anteprimeFont = true; FONT_PRESET.forEach(caricaFont); }
-  const box = $("#font-sel"); box.innerHTML = "";
-  FONT_PRESET.forEach(p => box.append(el("button", {"aria-pressed":String(p.id === fontAttuale().id), onclick:() => {
-    pref.font = p.id; salva.pref(); applicaFont(); renderFont();
-  }},
-    el("span", {class:"fg-e", style:"font-family:" + p.pilaD}, "1.250", el("small", {style:"font-family:" + p.pila}, "m")),
-    el("span", {class:"fg-n", style:"font-family:" + p.pila}, p.nome))));
+  segmenti($("#imp-tema"), [[null, "Automatico"], ["sole", "Chiaro"], ["notte", "Scuro"]], pref.tema || null, v => {
+    pref.tema = v; salva.pref(); applicaTema(); renderTutto();
+  });
+  segmenti($("#imp-testo"), TESTI.map(t => [t[0], t[1]]), pref.testo || "normale", v => { pref.testo = v; salva.pref(); applicaPreferenze(); renderFont(); });
+  const sel = $("#font-sel");
+  if (!sel.options.length){
+    FONT_PRESET.forEach(p => sel.append(el("option", {value:p.id}, p.nome)));
+    sel.addEventListener("change", () => { pref.font = sel.value; salva.pref(); applicaFont(); });
+  }
+  sel.value = fontAttuale().id;
+  segmenti($("#imp-moto"), [["si", "Sì"], ["no", "Ridotte"]], pref.moto || "si", v => { pref.moto = v; salva.pref(); applicaPreferenze(); renderFont(); });
+  segmenti($("#imp-apri"), [["seduta", "Seduta"], ["presenze", "Presenze"], ["ultima", "L'ultima"]], pref.apri || "seduta", v => { pref.apri = v; salva.pref(); renderFont(); });
+  interruttore($("#imp-acceso"), pref.acceso, v => { pref.acceso = v; salva.pref(); applicaPreferenze(); renderFont(); }, !accesoPossibile());
+  $("#imp-acceso-nota").textContent = accesoPossibile() ? "Mentre l'app è aperta, non si spegne" : "Questo browser non lo permette";
 }
 
 /* ================= IMPOSTAZIONI: gruppi e vasca ================= */
@@ -3162,6 +3260,20 @@ function aggiornaPresStato(){
   else s.textContent = "";
 }
 
+/* riepilogo del giorno, fisso in alto mentre si scorre l'elenco: numeri e barra presenti / assenti / da segnare.
+   La barra parte dalle misure di prima e scorre fino alle nuove, così si vede cosa è cambiato. */
+const presBarraPrima = {};
+function presRiepilogo(chiave, np, na, tot){
+  const ns = tot - np - na, quote = [np / tot * 100, na / tot * 100, ns / tot * 100];
+  const prima = presBarraPrima[chiave] || quote;
+  const pezzi = ["ok", "no", "vuoto"].map((c, i) => el("i", {class:c, style:"width:" + prima[i] + "%"}));
+  presBarraPrima[chiave] = quote;
+  requestAnimationFrame(() => requestAnimationFrame(() => pezzi.forEach((p, i) => { p.style.width = quote[i] + "%"; })));
+  return el("div", {class:"pr-riepilogo"},
+    el("div", {class:"pr-conti"}, el("span", null, el("b", null, np), " presenti"), el("span", null, el("b", null, na), " assenti"),
+      el("span", {class:ns ? "resta" : ""}, el("b", null, ns), ns ? " da segnare" : " da segnare: fatto")),
+    el("div", {class:"pr-avanz", role:"img", "aria-label":np + " presenti, " + na + " assenti, " + ns + " da segnare"}, pezzi));
+}
 function renderPresenze(){
   if (vista !== "v-presenze") return;
   document.body.classList.add("in-pres");
@@ -3169,7 +3281,7 @@ function renderPresenze(){
   // del foglio cancellerebbero il campo e il testo appena scritto
   if (document.activeElement && document.activeElement.id === "pr-nota"){ aggiornaPresStato(); return; }
   const ro = soloLettura(), og = oggi(), d = presSel.d;
-  const tab = $("#pr-tab"); tab.innerHTML = "";
+  const tab = $("#pr-tab"); tab.querySelectorAll(":scope > button").forEach(b => b.remove());
   PR_TAB.forEach(([n, c]) => tab.append(el("button", {"aria-pressed":String(n === presSel.g), onclick:() => { presSel.g = n; pref.presG = n; salva.pref(); renderPresenze(); }}, c)));
 
   const r = presMap[presSel.g], sc = r && r.sc, g = r && r.m[d];
@@ -3224,10 +3336,12 @@ function renderPresenze(){
     const tocca = nuovo => {
       const patch = {cambi:{[brutto]:codice === nuovo ? "0" : nuovo}};
       if (!svolto) patch.a = "1";
+      vibra(8);
       presModifica(sc.nome, d, patch);
     };
-    lista.append(el("div", {class:"pr-riga"},
-      el("div", {class:"pr-nome"}, el("b", null, q.nome), sotto),
+    lista.append(el("div", {class:"pr-riga" + (codice === "0" ? " da-segnare" : "")},
+      // anche il nome è un bersaglio: un tocco lo segna presente (il gesto più frequente)
+      el("div", {class:"pr-nome", onclick:ro ? null : () => tocca("1")}, el("b", null, q.nome), sotto),
       el("div", {class:"pr-sc"},
         el("button", {class:"pr-b ok", "aria-pressed":String(codice === "1"), "aria-label":"Presente: " + q.nome, disabled:ro, onclick:() => tocca("1")}, icona("i-ok")),
         el("button", {class:"pr-b no", "aria-pressed":String(codice === "2"), "aria-label":"Assente: " + q.nome, disabled:ro, onclick:() => tocca("2")}, icona("i-no")))));
@@ -3239,10 +3353,7 @@ function renderPresenze(){
   }}, "Tutte presenti");
   c.append(el("div", {class:"sez"},
     el("div", {class:"sez-testa"}, el("h2", null, "Atlete"), el("span", {class:"stato-invio", id:"pr-stato"}), tutte),
-    el("div", {class:"pannello"},
-      el("div", {class:"pr-conti", style:"margin-bottom:10px"}, el("span", null, el("b", null, np), " presenti"), el("span", null, el("b", null, na), " assenti"),
-        el("span", null, el("b", null, sc.atleti.length - np - na), " da segnare")),
-      lista)));
+    el("div", {class:"pannello"}, presRiepilogo(sc.nome + "|" + d, np, na, sc.atleti.length), lista)));
 
   /* note */
   const nota = el("textarea", {class:"campo diario", id:"pr-nota", rows:2, "aria-label":"Note della giornata", disabled:ro});
@@ -3310,11 +3421,69 @@ applicaTema();
 if (window.matchMedia) matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => { if (!pref.tema){ applicaTema(); renderTutto(); } });
 let ridim = null;
 window.addEventListener("resize", () => { clearTimeout(ridim); ridim = setTimeout(renderVista, 160); });
+applicaPreferenze();
 renderTutto();
+{ const a = pref.apri === "presenze" ? "v-presenze" : pref.apri === "ultima" && document.getElementById(pref.ultima) && $("#navbar [data-v=\"" + pref.ultima + "\"]") ? pref.ultima : null; if (a && a !== vista) vai(a); }
 dopoTocco();
 if (foglioPronto() && foglio.legato === legame()) sincronizza({});
 programmaPoll();
 
+</script>
+<script src="https://cdn.jsdelivr.net/npm/motion@11.18.2/dist/motion.js" defer></script>
+<script>
+/* ================= movimento: pochi gesti, tutti in risposta a un tocco ================= */
+window.addEventListener("load", () => {
+  const M = window.Motion;
+  const riduci = () => document.body.classList.contains("calmo") || matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // altezza della testata: serve al riepilogo delle presenze per fermarsi subito sotto
+  const testa = document.querySelector(".testa");
+  const altezza = () => document.documentElement.style.setProperty("--alt-testa", testa.offsetHeight + "px");
+  new ResizeObserver(altezza).observe(testa); altezza();
+
+  // indicatore che scorre sotto la scelta attiva
+  const SEL = ".navbar-in, .gruppi, .seg";
+  const ultimo = new WeakMap();
+  // la barra in basso: l'indicatore abbraccia icona e scritta, centrato nel pulsante, con 4px di aria per lato
+  const MARGINE_NAV = {x:4, y:3};
+  function posiziona(c){
+    const b = c.querySelector(":scope > button[aria-pressed='true']");
+    let p = c.querySelector(":scope > .pillola");
+    if (!b || !b.offsetWidth){ if (p) p.style.opacity = "0"; return; }
+    c.classList.add("con-pillola");
+    const nav = c.classList.contains("navbar-in");
+    const mx = nav ? MARGINE_NAV.x : 0, my = nav ? MARGINE_NAV.y : 0;
+    const x = b.offsetLeft + mx, y = b.offsetTop + my, w = b.offsetWidth - 2 * mx, h = b.offsetHeight - 2 * my;
+    const nuova = !p;
+    if (nuova){ p = document.createElement("span"); p.className = "pillola"; p.setAttribute("aria-hidden", "true"); c.prepend(p); }
+    p.style.opacity = "1"; p.style.top = y + "px"; p.style.height = h + "px";
+    const meta = ultimo.get(c);
+    ultimo.set(c, {x, w});
+    if (meta && meta.x === x && meta.w === w && !nuova) return;
+    // si parte da dove l'indicatore si trova davvero (anche a metà di uno scorrimento), non da dove doveva arrivare
+    let da = null;
+    if (!nuova && p.offsetWidth){
+      const rp = p.getBoundingClientRect(), rc = c.getBoundingClientRect();
+      const s = rc.width / c.offsetWidth || 1;   // con il testo ingrandito le misure a schermo sono scalate
+      da = {x:(rp.left - rc.left) / s - c.clientLeft, w:rp.width / s};
+    } else if (meta) da = meta;
+    if (!M || riduci() || !da || (Math.abs(da.x - x) < .5 && Math.abs(da.w - w) < .5)){
+      p.style.width = w + "px"; p.style.transform = "translateX(" + x + "px)"; return;
+    }
+    M.animate(p, {x:[da.x, x], width:[da.w + "px", w + "px"]}, {duration:.42, ease:[.32, .72, 0, 1]});
+  }
+  let rq = 0;
+  const tutte = () => { rq = 0; document.querySelectorAll(SEL).forEach(posiziona); };
+  const pianifica = () => { if (!rq) rq = requestAnimationFrame(tutte); };
+  new MutationObserver(m => {
+    // i numeri che contano non contano: solo scelte, classi e nodi interi
+    if (m.some(x => x.type === "attributes" || [...x.addedNodes, ...x.removedNodes].some(n => n.nodeType === 1))) pianifica();
+  }).observe(document.body, {subtree:true, childList:true, attributes:true, attributeFilter:["aria-pressed", "class", "hidden"]});
+  window.addEventListener("resize", pianifica);
+  tutte();
+  // i caratteri arrivano dopo: le misure dei pulsanti cambiano, l'indicatore si rimette a posto
+  if (document.fonts) document.fonts.ready.then(pianifica);
+});
 </script>
 </body>
 </html>
