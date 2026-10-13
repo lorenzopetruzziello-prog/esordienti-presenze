@@ -888,6 +888,10 @@ body.in-pres .toast{bottom:calc(var(--base-nav, 70px) + var(--alt-barra, 0px) + 
 .pr-barra{padding:0 10px 10px; gap:6px; overflow:hidden}
 #pr-barra-corpo{gap:6px}
 .pr-barra .pr-avanz{height:5px; margin:0 -10px; border-radius:0; background:rgba(0,0,0,.28)}
+/* pause: righe grigie nella striscia dei giorni e avviso nelle Presenze */
+.gm i.pausa-b{width:100%; background:repeating-linear-gradient(135deg, var(--tenue2) 0 2px, transparent 2px 4px)}
+.giorno-btn.pausa:not([aria-pressed="true"]) .gd, .giorno-btn.pausa:not([aria-pressed="true"]) .gn{opacity:.55}
+.pr-pausa{margin-top:6px; padding:8px 11px; border-radius:12px; font-size:13.5px; line-height:1.4; color:var(--tenue); background:rgba(255,255,255,.05); border:1px dashed var(--vetro-bordo)}
 /* giorno di allenamento previsto: il numero resta quello di sempre, la barretta sotto è gialla */
 .giorno-btn.previsto:not([aria-pressed="true"]) .gd{color:var(--gesso)}
 /* giorni di allenamento nelle Impostazioni: sette pulsanti per gruppo */
@@ -1175,6 +1179,11 @@ body.in-pres .toast{bottom:calc(var(--base-nav, 70px) + var(--alt-barra, 0px) + 
     <div class="sez-testa"><h2>Giorni di allenamento</h2></div>
     <div class="pannello imp-lista" id="imp-giorni"></div>
     <p class="nota" style="margin-top:8px">Le Presenze si aprono sul giorno di allenamento e lo segnano in giallo nella striscia dei giorni. Valgono per tutti i dispositivi collegati al foglio.</p>
+  </div>
+  <div class="sez">
+    <div class="sez-testa"><h2>Pause e vacanze</h2><button class="btn piccolo solo-scrivo" id="pausa-nuova"><svg><use href="#i-piu"/></svg>Pausa</button></div>
+    <div class="pannello imp-lista" id="imp-pause"></div>
+    <p class="nota" style="margin-top:8px">Nei periodi di pausa, per tutti i gruppi, non si prevede allenamento: restano grigi nella striscia dei giorni e non contano nelle percentuali, perché contano solo i giorni segnati "Allenamento: sì".</p>
   </div>
   <div class="sez">
     <div class="sez-testa"><h2>A bordo vasca</h2></div>
@@ -2830,8 +2839,42 @@ function renderGiorniAllenamento(){
     riga.append(g); box.append(riga);
   });
 }
+/* pause (vacanze): elenco e inserimento */
+function renderPause(){
+  const box = $("#imp-pause"); if (!box) return;
+  box.innerHTML = "";
+  const lista = (pref.pause || []).slice().sort((a, b) => a.da < b.da ? -1 : a.da > b.da ? 1 : 0);
+  if (!lista.length){ box.append(el("div", {class:"imp-riga"}, el("span", {class:"muto"}, "Nessuna pausa"))); return; }
+  lista.forEach(p => box.append(el("div", {class:"imp-riga"},
+    el("span", null, p.nome || "Pausa", el("small", null, dataBreve(p.da) + (p.a !== p.da ? " – " + dataBreve(p.a) : ""))),
+    el("button", {class:"btn piccolo solo-scrivo", disabled:soloLettura(), "aria-label":"Togli la pausa " + (p.nome || dataBreve(p.da)), onclick:() => {
+      if (soloLettura()) return;
+      const prima = pref.pause || [];
+      pref.pause = prima.filter(x => x.id !== p.id); segnaImpostazioni(); renderPause(); renderVista();
+      toast("Pausa tolta", () => { pref.pause = prima; segnaImpostazioni(); renderPause(); renderVista(); });
+    }}, "Togli"))));
+}
+$("#pausa-nuova").addEventListener("click", () => {
+  if (soloLettura()) return;
+  apriFoglio(c => {
+    const nome = el("input", {class:"campo", type:"text", placeholder:"Es. Natale", autocomplete:"off", maxlength:24, "aria-label":"Nome della pausa"});
+    const da = el("input", {class:"campo", type:"date", "aria-label":"Primo giorno di pausa", value:oggi()});
+    const a = el("input", {class:"campo", type:"date", "aria-label":"Ultimo giorno di pausa", value:oggi()});
+    da.addEventListener("change", () => { if (a.value < da.value) a.value = da.value; });
+    const salvaPausa = () => {
+      if (!da.value || !a.value){ toast("Scegli il primo e l'ultimo giorno"); return; }
+      if (a.value < da.value){ toast("L'ultimo giorno è prima del primo"); return; }
+      pref.pause = (pref.pause || []).concat({id:uid(), nome:nome.value.trim(), da:da.value, a:a.value});
+      segnaImpostazioni(); chiudiFoglio(); renderPause(); renderVista();
+      toast("Pausa aggiunta");
+    };
+    c.append(el("h3", null, "Nuova pausa"), el("p", {class:"sott"}, "Giorni senza allenamento per tutti i gruppi."),
+      el("label", {class:"et"}, "Nome (facoltativo)"), nome, el("label", {class:"et"}, "Dal"), da, el("label", {class:"et"}, "Al"), a,
+      el("div", {class:"azioni"}, el("button", {class:"btn", onclick:chiudiFoglio}, "Annulla"), el("button", {class:"primario", onclick:salvaPausa}, "Aggiungi")));
+  });
+});
 function renderFont(){
-  renderGiorniAllenamento();
+  renderGiorniAllenamento(); renderPause();
   segmenti($("#imp-tema"), [[null, "Automatico"], ["sole", "Chiaro"], ["notte", "Scuro"]], pref.tema || null, v => {
     pref.tema = v; salva.pref(); applicaTema(); renderTutto();
   });
@@ -2947,7 +2990,7 @@ function sedutaPerFoglio(k){
   const x = k.indexOf("|"), g = k.slice(0, x), d = k.slice(x + 1), n = note[k] || {t:"", ts:0};
   return {chiave:k, archivio:{g, d, serie:serie.filter(s => s.g === g && s.d === d), tolte:tombe.sedute[k] || {}, nota:n.t || "", notaTs:n.ts || 0}};
 }
-const impostazioniPerFoglio = () => ({nomi:pref.nomi, vasca:pref.vasca, voci:pref.voci, nascoste:pref.nascoste, giorni:pref.giorni || {}, ts:pref.impTs || 0});
+const impostazioniPerFoglio = () => ({nomi:pref.nomi, vasca:pref.vasca, voci:pref.voci, nascoste:pref.nascoste, giorni:pref.giorni || {}, pause:pref.pause || [], ts:pref.impTs || 0});
 const listePerFoglio = () => ({
   obiettivi:{lista:obiettivi, tolte:tombe.liste.obiettivi}, gare:{lista:gare, tolte:tombe.liste.gare}, modelli:{lista:modelli, tolte:tombe.liste.modelli}});
 
@@ -2987,7 +3030,7 @@ function applicaVoci(voci){
   obiettivi = lista("obiettivi", obiettivi); gare = lista("gare", gare); modelli = lista("modelli", modelli);
   const imp = altro.impostazioni && altro.impostazioni.v;
   if (imp && (imp.ts || 0) > (pref.impTs || 0)){
-    pref.nomi = imp.nomi || {}; pref.vasca = imp.vasca || 25; pref.voci = imp.voci || {}; pref.nascoste = imp.nascoste || {}; if (imp.giorni) pref.giorni = imp.giorni; pref.impTs = imp.ts; cambiate.add("impostazioni");
+    pref.nomi = imp.nomi || {}; pref.vasca = imp.vasca || 25; pref.voci = imp.voci || {}; pref.nascoste = imp.nascoste || {}; if (imp.giorni) pref.giorni = imp.giorni; if (imp.pause) pref.pause = imp.pause; pref.impTs = imp.ts; cambiate.add("impostazioni");
   }
   Mem.scrivi(K.serie, serie); Mem.scrivi(K.note, note); Mem.scrivi(K.obiettivi, obiettivi); Mem.scrivi(K.gare, gare);
   Mem.scrivi(K.modelli, modelli); salva.tombe(); salva.pref(); salva.coda();
@@ -3248,10 +3291,13 @@ const PR_GRUPPO_ID = {esa:"ESORDIENTI A", esb:"ESORDIENTI B", esc:"ESORDIENTI C"
 let presGruppoVisto = pref.gruppo;
 /* giorni di allenamento scelti per ogni gruppo (Impostazioni): all'apertura Presenze propone oggi se c'è allenamento,
    altrimenti l'ultimo giorno di allenamento passato, così non serve cercarlo. Il tasto "Oggi" riporta a oggi. */
+/* pause (vacanze): periodi senza allenamento, uguali per tutti i gruppi; si scelgono nelle Impostazioni */
+const inPausa = s => (pref.pause || []).find(p => p.da <= s && s <= p.a) || null;
+const presPrevisto = (nome, s) => !inPausa(s) && ((pref.giorni || {})[nome] || []).includes(dow(s));
 function presGiornoPerGruppo(nome){
   const cfg = (pref.giorni || {})[nome], og = oggi();
-  if (!cfg || !cfg.length || cfg.includes(dow(og))) return og;
-  for (let i = 1; i <= 7; i++){ const x = piuGiorni(og, -i); if (cfg.includes(dow(x))) return x; }
+  if (!cfg || !cfg.length || inPausa(og) || cfg.includes(dow(og))) return og;
+  for (let i = 1; i <= 7; i++){ const x = piuGiorni(og, -i); if (presPrevisto(nome, x)) return x; }
   return og;
 }
 let presGiornoFatto = false;
@@ -3405,7 +3451,7 @@ function aggiornaPresStato(){
 /* riepilogo del giorno, fisso in alto mentre si scorre l'elenco: numeri e barra presenti / assenti / da segnare.
    La barra parte dalle misure di prima e scorre fino alle nuove, così si vede cosa è cambiato. */
 const presBarraPrima = {};
-function presRiepilogo(chiave, np, na, tot){
+function presRiepilogo(chiave, np, na, tot, attesa){
   const ns = tot - np - na, quote = [np / tot * 100, na / tot * 100, ns / tot * 100];
   const prima = presBarraPrima[chiave] || quote;
   const pezzi = ["ok", "no", "vuoto"].map((c, i) => el("i", {class:c, style:"width:" + prima[i] + "%"}));
@@ -3413,7 +3459,7 @@ function presRiepilogo(chiave, np, na, tot){
   requestAnimationFrame(() => requestAnimationFrame(() => pezzi.forEach((p, i) => { p.style.width = quote[i] + "%"; })));
   return el("div", {class:"pr-riepilogo"},
     el("div", {class:"pr-conti"}, el("span", null, el("b", null, np), " presenti"), el("span", null, el("b", null, na), " assenti"),
-      el("span", {class:ns ? "resta" : ""}, el("b", null, ns), ns ? " da segnare" : " da segnare: fatto"),
+      el("span", {class:ns && attesa ? "resta" : ""}, el("b", null, ns), ns ? " da segnare" : " da segnare: fatto"),
       // l'esito del salvataggio è annunciato agli screen reader
       el("span", {class:"stato-invio", id:"pr-stato", role:"status", "aria-live":"polite"})),
     el("div", {class:"pr-avanz", role:"img", "aria-label":np + " presenti, " + na + " assenti, " + ns + " da segnare"}, pezzi));
@@ -3438,12 +3484,14 @@ function renderPresenze(){
   const l = lunediDi(d), st = $("#pr-striscia"); st.innerHTML = "";
   for (let i = 0; i < 7; i++){
     const gg = piuGiorni(l, i), x = r && r.m[gg];
-    // verde = allenamento segnato; giallo = giorno di allenamento previsto per questo gruppo, non ancora segnato
-    const previsto = ((pref.giorni || {})[presSel.g] || []).includes(i);
+    // verde = allenamento segnato; giallo = giorno di allenamento previsto per questo gruppo, non ancora segnato;
+    // righe grigie = pausa (vacanze), nessun allenamento previsto
+    const pausa = inPausa(gg), previsto = presPrevisto(presSel.g, gg);
     const fatto = x && x.a === "1";
-    const barra = el("span", {class:"gm"}, fatto ? el("i", {style:"width:100%;background:var(--ok)"}) : previsto ? el("i", {style:"width:100%;background:var(--en2)"}) : null);
-    st.append(el("button", {class:"giorno-btn" + (gg === og ? " oggi" : "") + (previsto ? " previsto" : ""), "aria-pressed":String(gg === d),
-      "aria-label":dataLunga(gg) + (fatto ? ", allenamento svolto" : previsto ? ", allenamento previsto" : ""), onclick:() => { presSel.d = gg; renderPresenze(); }},
+    const barra = el("span", {class:"gm"}, fatto ? el("i", {style:"width:100%;background:var(--ok)"}) : previsto ? el("i", {style:"width:100%;background:var(--en2)"})
+      : pausa ? el("i", {class:"pausa-b"}) : null);
+    st.append(el("button", {class:"giorno-btn" + (gg === og ? " oggi" : "") + (previsto ? " previsto" : "") + (pausa ? " pausa" : ""), "aria-pressed":String(gg === d),
+      "aria-label":dataLunga(gg) + (fatto ? ", allenamento svolto" : previsto ? ", allenamento previsto" : pausa ? ", in pausa, nessun allenamento previsto" : ""), onclick:() => { presSel.d = gg; renderPresenze(); }},
       el("span", {class:"gn"}, GIORNI[i]), el("span", {class:"gd"}, daIso(gg).getDate()), barra));
   }
   $("#pr-titolo").textContent = maiusc(dataLunga(d));
@@ -3479,6 +3527,8 @@ function renderPresenze(){
 
   /* allenamento svolto */
   const svolto = g.a === "1";
+  // "da segnare" ha senso solo se l'allenamento c'è stato o era previsto: in un giorno libero o in pausa niente pallini gialli
+  const attesa = svolto || presPrevisto(sc.nome, d);
 
   /* atlete */
   const lista = el("div", {class:"pr-lista" + (svolto ? "" : " spento")});
@@ -3492,7 +3542,7 @@ function renderPresenze(){
       vibra(8);
       presModifica(sc.nome, d, patch);
     };
-    lista.append(el("div", {class:"pr-riga" + (codice === "0" ? " da-segnare" : "")},
+    lista.append(el("div", {class:"pr-riga" + (codice === "0" && attesa ? " da-segnare" : "")},
       // anche il nome è un bersaglio: un tocco lo segna presente (il gesto più frequente).
       // È un vero pulsante: si raggiunge da tastiera e lo screen reader legge anche "da segnare".
       el("button", {type:"button", class:"pr-nome", disabled:ro, "aria-label":(codice === "0" ? "Da segnare, " : "") + "segna presente: " + q.nome, onclick:() => tocca("1")},
@@ -3517,8 +3567,11 @@ function renderPresenze(){
     el("div", {class:"pannello"}, lista)));
   // riepilogo e comandi stanno nella barra in basso, dove arriva il pollice
   // i conteggi stanno sotto il titolo; in basso restano la barra di avanzamento, i comandi e i gruppi
-  const riep = presRiepilogo(sc.nome + "|" + d, np, na, sc.atleti.length);
+  const riep = presRiepilogo(sc.nome + "|" + d, np, na, sc.atleti.length, attesa);
   $("#pr-conti-top").replaceChildren(riep.querySelector(".pr-conti"));
+  const pz = inPausa(d);
+  if (pz) $("#pr-conti-top").append(el("div", {class:"pr-pausa"}, "In pausa" + (pz.nome ? ": " + pz.nome : "") + " (" + dataBreve(pz.da) + " – " + dataBreve(pz.a)
+    + "). Nessun allenamento previsto: se ti alleni lo stesso, segna le presenze e l'allenamento si accende da solo."));
   $("#pr-barra-corpo").append(riep.querySelector(".pr-avanz"), comandi);
 
   /* note */
