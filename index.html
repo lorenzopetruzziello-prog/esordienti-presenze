@@ -887,6 +887,17 @@ body.calmo :is(.vista.attiva, .foglio-fondo, .foglio-corpo, .toast.via){animatio
 body.calmo :is(.btn, .chip, .giorno-btn, .freccia, .tondo, .pr-b, .seg button, .gruppi button, .primario):active{transform:none}
 body.calmo :is(.navbar button svg, .interr::after, .toast.esce, .foglio.chiude .foglio-corpo){transform:none; transition:none}
 body.calmo .pr-avanz i{transition:none}
+/* ---- spia "Foglio" in alto: tutta colorata in base allo stato ----
+   verde = collegato e aggiornato | giallo = si collega, aggiorna o ha modifiche da inviare | rosso = scollegato o non raggiunto */
+.gara-chip.ok, .gara-chip.att, .gara-chip.err{border-color:transparent; box-shadow:none}
+.gara-chip.ok{background:#57C08D; color:#04202A}
+.gara-chip.att{background:#F2C14E; color:#04202A}
+.gara-chip.err{background:#F0666A; color:#04202A}
+:root[data-theme="sole"] .gara-chip.ok, :root[data-theme="light"] .gara-chip.ok{background:#17784A; color:#FFFFFF}
+:root[data-theme="sole"] .gara-chip.att, :root[data-theme="light"] .gara-chip.att{background:#E0A82E; color:#04202A}
+:root[data-theme="sole"] .gara-chip.err, :root[data-theme="light"] .gara-chip.err{background:#C92A32; color:#FFFFFF}
+.gara-chip.ok b, .gara-chip.att b, .gara-chip.err b{color:inherit}
+.gara-chip.ok i, .gara-chip.att i, .gara-chip.err i{background:currentColor}
 </style>
 </head>
 <body>
