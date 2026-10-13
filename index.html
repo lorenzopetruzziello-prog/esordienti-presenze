@@ -16,6 +16,8 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/saira-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
 :root{
   --acqua:#06222B; --vasca:#0B3240; --vasca2:#0F3C4C; --pozzo:#041A21; --linea:#1C5467; --linea2:#143F4E;
@@ -803,6 +805,73 @@ input,select,textarea,.campo,textarea.campo.diario{font-size:16px}
 .interr[disabled]{opacity:.4; cursor:default}
 /* animazioni ridotte, scelte dalle impostazioni */
 body.calmo *, body.calmo *::before, body.calmo *::after{animation:none !important; transition:none !important}
+/* caratteri del tema "Classico" serviti dal sito stesso: nessuna richiesta a Google al primo avvio */
+@font-face{font-family:'Figtree'; font-style:normal; font-weight:400 800; font-display:swap; src:url(fonts/figtree-latin.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Saira'; font-style:normal; font-weight:400 900; font-stretch:50% 125%; font-display:swap; src:url(fonts/saira-latin.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+/* ===================== ritocchi dall'audit =====================
+   bersagli da 44px, contrasto AA, testo leggibile, Presenze con l'elenco in alto, righe segnaposto */
+
+/* --- bersagli --- */
+.pr-b{width:52px; height:46px}
+.pr-sc{gap:8px}
+.chip, .btn, .freccia, .tondo, .seg button, .giorno-btn, .gara-chip, .btn.piccolo{min-height:44px}
+.freccia, .tondo{min-width:44px}
+.striscia-wrap{margin-top:8px}
+.titolo-giorno{align-items:center}
+.naviga-giorni{display:flex; align-items:center; gap:6px; flex:none}
+.naviga-giorni .btn.piccolo{padding:6px 12px}
+
+/* --- testo --- */
+.navbar button{font-size:12.5px}
+
+/* --- Presenze: comandi sopra l'elenco, nome come pulsante --- */
+.pr-comandi{display:flex; gap:8px; margin:6px 0 6px}
+.pr-comandi > *{flex:1; min-height:44px}
+.pr-comandi .btn[aria-pressed="true"]{background:color-mix(in srgb, var(--ok) 20%, transparent); border-color:var(--ok)}
+button.pr-nome{display:block; text-align:left; background:transparent; border:0; padding:0; min-height:46px; cursor:pointer; color:inherit; font:inherit; border-radius:8px}
+button.pr-nome b{display:block}
+button.pr-nome:disabled{cursor:default}
+.pr-riepilogo .stato-invio{margin-left:auto}
+.pr-conti{align-items:baseline}
+#v-presenze #pr-corpo > .sez{margin-top:10px}
+#v-presenze .titolo-giorno p{display:none}
+#v-presenze .titolo-giorno h1{font-size:22px}
+#v-presenze .pr-riepilogo{padding:10px 13px 9px}
+
+#v-presenze #pr-tab{margin-top:8px !important}
+#v-presenze .titolo-giorno{margin-top:6px}
+#v-presenze .striscia-wrap{margin-top:6px}
+#v-presenze .giorno-btn{padding:3px 0 4px; gap:1px}
+.pr-riga{padding:2px 0}
+.pr-comandi{margin:4px 0 4px}
+.gruppi button{min-height:44px}
+.campo, .cmd, select.campo{min-height:44px}
+.interr::before{content:""; position:absolute; inset:-7px -4px}
+/* --- contrasto AA (tema chiaro: quello da usare al sole) --- */
+:root[data-theme="sole"] .pr-pct, :root[data-theme="sole"] .pr-fr .perc{color:#0F6CA8}
+:root[data-theme="sole"] .pr-conti .resta b{color:#8A5A00}
+:root[data-theme="sole"] .pr-riga.da-segnare .pr-nome b::before{background:#8A5A00}
+:root[data-theme="sole"]{--tenue2:#56747F}
+:root[data-theme="sole"] .titolo-giorno p, :root[data-theme="sole"] .nav-sett p{color:#2F5260}
+:root, :root[data-theme="notte"]{--tenue2:#7FA6B3}
+:root[data-theme="notte"] .titolo-giorno p, :root[data-theme="notte"] .nav-sett p{color:#B4D6DF}
+.pr-b.no[aria-pressed="true"]{background:#D93F45; border-color:#D93F45}
+
+/* --- righe segnaposto: stessa altezza delle atlete, un solo movimento lento --- */
+.pr-sk{pointer-events:none}
+.sk-r, .sk-b, .pr-riepilogo-sk i{display:block; border-radius:6px; background:linear-gradient(90deg, rgba(255,255,255,.07), rgba(255,255,255,.16), rgba(255,255,255,.07)); background-size:200% 100%; animation:sk 1.4s ease-in-out infinite}
+:where(:root[data-theme="sole"],:root[data-theme="light"]) :is(.sk-r,.sk-b,.pr-riepilogo-sk i){background-image:linear-gradient(90deg, rgba(6,37,48,.06), rgba(6,37,48,.13), rgba(6,37,48,.06))}
+.pr-sk .pr-nome{flex:1; display:grid; gap:7px; padding:6px 0}
+.sk-r{height:14px; width:62%} .sk-r.corto{height:11px; width:34%}
+.sk-b{width:52px; height:46px; border-radius:12px}
+.pr-riepilogo-sk{display:grid; gap:9px; padding:2px 0 12px}
+.pr-riepilogo-sk i{height:15px; width:70%} .pr-riepilogo-sk i + i{height:7px; width:100%; border-radius:4px}
+.vuoto-seduta.in-arrivo{display:grid; gap:9px; justify-items:center; padding:24px 3px 20px}
+.vuoto-seduta.in-arrivo .sk-r{width:70%}
+.vuoto-seduta.in-arrivo .sk-r.corto{width:45%}
+@keyframes sk{from{background-position:200% 0} to{background-position:-200% 0}}
 </style>
 </head>
 <body>
@@ -858,14 +927,14 @@ body.calmo *, body.calmo *::before, body.calmo *::after{animation:none !importan
 <main>
 <!-- =================== SEDUTA =================== -->
 <section class="vista attiva" id="v-seduta" aria-label="Seduta">
-  <div class="striscia-wrap">
-    <button class="freccia" id="st-prec" aria-label="Settimana precedente"><svg><use href="#i-sx"/></svg></button>
-    <div class="striscia" id="striscia"></div>
-    <button class="freccia" id="st-succ" aria-label="Settimana successiva"><svg><use href="#i-dx"/></svg></button>
-  </div>
+  <div class="striscia-wrap"><div class="striscia" id="striscia"></div></div>
   <div class="titolo-giorno">
     <div><h1 id="g-titolo">Oggi</h1><p id="g-sotto"></p></div>
-    <button class="btn piccolo" id="vai-oggi">Oggi</button>
+    <div class="naviga-giorni">
+      <button class="freccia" id="st-prec" aria-label="Settimana precedente"><svg><use href="#i-sx"/></svg></button>
+      <button class="btn piccolo" id="vai-oggi">Oggi</button>
+      <button class="freccia" id="st-succ" aria-label="Settimana successiva"><svg><use href="#i-dx"/></svg></button>
+    </div>
   </div>
 
   <div id="avviso-foglio"></div>
@@ -1040,14 +1109,14 @@ body.calmo *, body.calmo *::before, body.calmo *::after{animation:none !importan
 <!-- =================== PRESENZE =================== -->
 <section class="vista" id="v-presenze" aria-label="Presenze">
   <div class="seg largo" id="pr-tab" role="group" aria-label="Gruppo" style="margin-top:13px"></div>
-  <div class="striscia-wrap">
-    <button class="freccia" id="pr-prec" aria-label="Settimana precedente"><svg><use href="#i-sx"/></svg></button>
-    <div class="striscia" id="pr-striscia"></div>
-    <button class="freccia" id="pr-succ" aria-label="Settimana successiva"><svg><use href="#i-dx"/></svg></button>
-  </div>
+  <div class="striscia-wrap"><div class="striscia" id="pr-striscia"></div></div>
   <div class="titolo-giorno">
     <div><h1 id="pr-titolo">Presenze</h1><p id="pr-sotto"></p></div>
-    <button class="btn piccolo" id="pr-oggi">Oggi</button>
+    <div class="naviga-giorni">
+      <button class="freccia" id="pr-prec" aria-label="Settimana precedente"><svg><use href="#i-sx"/></svg></button>
+      <button class="btn piccolo" id="pr-oggi">Oggi</button>
+      <button class="freccia" id="pr-succ" aria-label="Settimana successiva"><svg><use href="#i-dx"/></svg></button>
+    </div>
   </div>
   <div id="pr-avviso"></div>
   <div id="pr-corpo"></div>
@@ -1469,7 +1538,7 @@ const firma = s => [s.gi || 1, s.r, s.m, s.s, (s.a || []).slice().sort().join("+
 
 /* ================= carattere della pagina ================= */
 const FONT_PRESET = [
-  {id:"classico", nome:"Classico", url:"family=Figtree:wght@400..800&family=Saira:wdth,wght@50..125,400..900",
+  {id:"classico", nome:"Classico", url:null,
     pila:"'Figtree', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif", pilaD:"'Saira', 'Arial Narrow', 'Roboto Condensed', system-ui, sans-serif"},
   {id:"compatto", nome:"Compatto", url:"family=Archivo:wdth,wght@62..125,400..900",
     pila:"'Archivo', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif", pilaD:"'Archivo', 'Arial Narrow', 'Roboto Condensed', system-ui, sans-serif"},
@@ -1919,7 +1988,11 @@ function renderElenco(anima){
   $("#sed-sub").textContent = lista.length ? lista.length + (lista.length === 1 ? " serie" : " serie") + (vsSed ? " · " + vsSed : "") : "Nessuna serie";
   $("#sed-tot").textContent = fmt(totSed);
   if (!lista.length){
-    ul.append(el("li", {class:"vuoto-seduta"}, "Nessuna seduta in questo giorno"));
+    // al primo collegamento le sedute arrivano dal foglio: finché non sono arrivate non si dice "nessuna seduta"
+    const inArrivo = foglioPronto() && sincInCorso && !foglio.ultimo;
+    ul.append(inArrivo
+      ? el("li", {class:"vuoto-seduta in-arrivo", "aria-busy":"true"}, el("i", {class:"sk-r"}), el("i", {class:"sk-r corto"}), el("i", {class:"sk-r"}))
+      : el("li", {class:"vuoto-seduta"}, "Nessuna seduta in questo giorno"));
   }
   const marcatore = () => el("li", {class:"inserisci-qui"}, el("span", null, "Qui la prossima serie"), el("button", {class:"btn piccolo", onclick:() => fineInserimento()}, "Fine"));
   gruppiBlocchi(lista).forEach(gr => {
@@ -2719,7 +2792,7 @@ function renderFont(){
   }
   sel.value = fontAttuale().id;
   segmenti($("#imp-moto"), [["si", "Sì"], ["no", "Ridotte"]], pref.moto || "si", v => { pref.moto = v; salva.pref(); applicaPreferenze(); renderFont(); });
-  segmenti($("#imp-apri"), [["seduta", "Seduta"], ["presenze", "Presenze"], ["ultima", "L'ultima"]], pref.apri || "seduta", v => { pref.apri = v; salva.pref(); renderFont(); });
+  segmenti($("#imp-apri"), [["seduta", "Seduta"], ["presenze", "Presenze"], ["ultima", "L'ultima"]], pref.apri || "ultima", v => { pref.apri = v; salva.pref(); renderFont(); });
   interruttore($("#imp-acceso"), pref.acceso, v => { pref.acceso = v; salva.pref(); applicaPreferenze(); renderFont(); }, !accesoPossibile());
   $("#imp-acceso-nota").textContent = accesoPossibile() ? "Mentre l'app è aperta, non si spegne" : "Questo browser non lo permette";
 }
@@ -3119,6 +3192,14 @@ let pres = Mem.leggi(K.pres, null);           // ultima copia letta dal foglio: 
 let presCoda = Mem.leggi(K.presCoda, {});     // "SCHEDA|data" -> {a?, n?, cambi:{nome:codice}} non ancora sul foglio
 let presMap = {};
 let presSel = {g:pref.presG || PR_TAB[0][0], d:oggi()};
+/* Seduta e Presenze condividono il gruppo (A, B, C): se cambia in Seduta, Presenze lo segue */
+const PR_GRUPPO_ID = {esa:"ESORDIENTI A", esb:"ESORDIENTI B", esc:"ESORDIENTI C"};
+let presGruppoVisto = pref.gruppo;
+function presSeguiGruppo(){
+  if (pref.gruppo === presGruppoVisto) return;
+  presGruppoVisto = pref.gruppo;
+  if (PR_GRUPPO_ID[pref.gruppo]){ presSel.g = PR_GRUPPO_ID[pref.gruppo]; pref.presG = presSel.g; }
+}
 let presStato = {caricando:false, invio:false, errore:"", ultimo:0, ack:0};
 let presTimer = null;
 const presSalvaCoda = () => Mem.scrivi(K.presCoda, presCoda);
@@ -3271,7 +3352,9 @@ function presRiepilogo(chiave, np, na, tot){
   requestAnimationFrame(() => requestAnimationFrame(() => pezzi.forEach((p, i) => { p.style.width = quote[i] + "%"; })));
   return el("div", {class:"pr-riepilogo"},
     el("div", {class:"pr-conti"}, el("span", null, el("b", null, np), " presenti"), el("span", null, el("b", null, na), " assenti"),
-      el("span", {class:ns ? "resta" : ""}, el("b", null, ns), ns ? " da segnare" : " da segnare: fatto")),
+      el("span", {class:ns ? "resta" : ""}, el("b", null, ns), ns ? " da segnare" : " da segnare: fatto"),
+      // l'esito del salvataggio è annunciato agli screen reader
+      el("span", {class:"stato-invio", id:"pr-stato", role:"status", "aria-live":"polite"})),
     el("div", {class:"pr-avanz", role:"img", "aria-label":np + " presenti, " + na + " assenti, " + ns + " da segnare"}, pezzi));
 }
 function renderPresenze(){
@@ -3282,7 +3365,12 @@ function renderPresenze(){
   if (document.activeElement && document.activeElement.id === "pr-nota"){ aggiornaPresStato(); return; }
   const ro = soloLettura(), og = oggi(), d = presSel.d;
   const tab = $("#pr-tab"); tab.querySelectorAll(":scope > button").forEach(b => b.remove());
-  PR_TAB.forEach(([n, c]) => tab.append(el("button", {"aria-pressed":String(n === presSel.g), onclick:() => { presSel.g = n; pref.presG = n; salva.pref(); renderPresenze(); }}, c)));
+  PR_TAB.forEach(([n, c]) => tab.append(el("button", {"aria-pressed":String(n === presSel.g), onclick:() => {
+    presSel.g = n; pref.presG = n;
+    const id = Object.keys(PR_GRUPPO_ID).find(k => PR_GRUPPO_ID[k] === n);
+    if (id){ pref.gruppo = id; presGruppoVisto = id; renderGruppi(); }   // il gruppo vale anche per la Seduta
+    salva.pref(); renderPresenze();
+  }}, c)));
 
   const r = presMap[presSel.g], sc = r && r.sc, g = r && r.m[d];
   const l = lunediDi(d), st = $("#pr-striscia"); st.innerHTML = "";
@@ -3303,9 +3391,14 @@ function renderPresenze(){
     el("span", {class:"spazio"}), el("button", {class:"btn piccolo", onclick:() => impostaModo("scrivo")}, "Scrivo")));
 
   const c = $("#pr-corpo"); c.innerHTML = "";
+  // mentre carica compaiono righe segnaposto (stessa altezza delle atlete): niente salto di layout all'arrivo dei dati
+  const scheletro = () => { $("#pr-sotto").textContent = nomeScheda(); c.append(el("div", {class:"sez", "aria-busy":"true"}, el("div", {class:"pannello"},
+    el("div", {class:"pr-riepilogo-sk"}, el("i"), el("i")),
+    Array.from({length:10}, () => el("div", {class:"pr-riga pr-sk"}, el("div", {class:"pr-nome"}, el("i", {class:"sk-r"}), el("i", {class:"sk-r corto"})), el("div", {class:"pr-sc"}, el("i", {class:"sk-b"}), el("i", {class:"sk-b"}))))))); };
   const vuoto = t => { $("#pr-sotto").textContent = nomeScheda(); c.append(el("div", {class:"sez"}, el("div", {class:"pannello pr-vuoto"}, t,
     foglioPronto() ? el("div", {style:"margin-top:10px"}, el("button", {class:"btn piccolo", onclick:() => presLeggi()}, "Aggiorna")) : null))); };
   const nomeScheda = () => maiusc(presSel.g.toLowerCase()).replace(/ ([a-c])$/, (_, x) => " " + x.toUpperCase());
+  if (!sc && foglioPronto() && presStato.caricando){ scheletro(); return; }
   if (!sc){ vuoto(foglioPronto() ? (presStato.caricando ? "Carico le presenze dal foglio…" : presStato.errore ? "Foglio non raggiunto: " + presStato.errore : "Nessun dato ancora.") : "Collega il foglio per vedere le presenze."); return; }
   if (sc.manca){ vuoto("Nel foglio non c'è la scheda " + sc.nome + "."); return; }
   if (!g){
@@ -3321,11 +3414,6 @@ function renderPresenze(){
 
   /* allenamento svolto */
   const svolto = g.a === "1";
-  c.append(el("div", {class:"sez"}, el("div", {class:"pannello"},
-    el("div", {class:"riga"}, el("b", null, "Allenamento"), el("span", {class:"spazio"}),
-      el("div", {class:"seg", role:"group", "aria-label":"Allenamento svolto"},
-        el("button", {"aria-pressed":String(svolto), disabled:ro, onclick:() => presModifica(sc.nome, d, {a:"1"})}, "Svolto"),
-        el("button", {"aria-pressed":String(!svolto), disabled:ro, onclick:() => presModifica(sc.nome, d, {a:"0"})}, "Non c'è stato"))))));
 
   /* atlete */
   const lista = el("div", {class:"pr-lista" + (svolto ? "" : " spento")});
@@ -3340,8 +3428,10 @@ function renderPresenze(){
       presModifica(sc.nome, d, patch);
     };
     lista.append(el("div", {class:"pr-riga" + (codice === "0" ? " da-segnare" : "")},
-      // anche il nome è un bersaglio: un tocco lo segna presente (il gesto più frequente)
-      el("div", {class:"pr-nome", onclick:ro ? null : () => tocca("1")}, el("b", null, q.nome), sotto),
+      // anche il nome è un bersaglio: un tocco lo segna presente (il gesto più frequente).
+      // È un vero pulsante: si raggiunge da tastiera e lo screen reader legge anche "da segnare".
+      el("button", {type:"button", class:"pr-nome", disabled:ro, "aria-label":(codice === "0" ? "Da segnare, " : "") + "segna presente: " + q.nome, onclick:() => tocca("1")},
+        el("b", null, q.nome), sotto),
       el("div", {class:"pr-sc"},
         el("button", {class:"pr-b ok", "aria-pressed":String(codice === "1"), "aria-label":"Presente: " + q.nome, disabled:ro, onclick:() => tocca("1")}, icona("i-ok")),
         el("button", {class:"pr-b no", "aria-pressed":String(codice === "2"), "aria-label":"Assente: " + q.nome, disabled:ro, onclick:() => tocca("2")}, icona("i-no")))));
@@ -3349,11 +3439,17 @@ function renderPresenze(){
   const tutte = el("button", {class:"btn piccolo solo-scrivo", disabled:ro, onclick:() => {
     const cambi = {}; sc.atleti.forEach((n, i) => { if (g.s[i] === "0") cambi[n] = "1"; });
     if (!Object.keys(cambi).length && svolto) { toast("Tutte già segnate"); return; }
+    // l'azione cambia fino a 14 celle e parte subito per il foglio: si può annullare dal toast
+    const inverso = {a:svolto ? undefined : "0", cambi:Object.fromEntries(Object.keys(cambi).map(n => [n, "0"]))};
     presModifica(sc.nome, d, {a:"1", cambi});
+    const n = Object.keys(cambi).length;
+    toast(n + (n === 1 ? " segnata presente" : " segnate presenti"), () => presModifica(sc.nome, d, inverso));
   }}, "Tutte presenti");
+  const comandi = el("div", {class:"pr-comandi"},
+    el("button", {class:"btn", "aria-pressed":String(svolto), disabled:ro, onclick:() => presModifica(sc.nome, d, {a:svolto ? "0" : "1"})},
+      svolto ? "Allenamento svolto" : "Allenamento non svolto"), tutte);
   c.append(el("div", {class:"sez"},
-    el("div", {class:"sez-testa"}, el("h2", null, "Atlete"), el("span", {class:"stato-invio", id:"pr-stato"}), tutte),
-    el("div", {class:"pannello"}, presRiepilogo(sc.nome + "|" + d, np, na, sc.atleti.length), lista)));
+    el("div", {class:"pannello"}, presRiepilogo(sc.nome + "|" + d, np, na, sc.atleti.length), comandi, lista)));
 
   /* note */
   const nota = el("textarea", {class:"campo diario", id:"pr-nota", rows:2, "aria-label":"Note della giornata", disabled:ro});
@@ -3401,6 +3497,7 @@ setInterval(() => {
 function renderVista(){
   document.body.classList.toggle("in-pres", vista === "v-presenze");
   if (vista === "v-presenze"){
+    presSeguiGruppo();
     renderPresenze();
     if (foglioPronto() && !presStato.caricando && Date.now() - presStato.ultimo > 15000) presLeggi();
     if (presInAttesa()) presPianifica(300);
@@ -3423,13 +3520,13 @@ let ridim = null;
 window.addEventListener("resize", () => { clearTimeout(ridim); ridim = setTimeout(renderVista, 160); });
 applicaPreferenze();
 renderTutto();
-{ const a = pref.apri === "presenze" ? "v-presenze" : pref.apri === "ultima" && document.getElementById(pref.ultima) && $("#navbar [data-v=\"" + pref.ultima + "\"]") ? pref.ultima : null; if (a && a !== vista) vai(a); }
+{ const ap = pref.apri || "ultima"; const a = ap === "presenze" ? "v-presenze" : ap === "ultima" && document.getElementById(pref.ultima) && $("#navbar [data-v=\"" + pref.ultima + "\"]") ? pref.ultima : null; if (a && a !== vista) vai(a); }
 dopoTocco();
 if (foglioPronto() && foglio.legato === legame()) sincronizza({});
 programmaPoll();
 
 </script>
-<script src="https://cdn.jsdelivr.net/npm/motion@11.18.2/dist/motion.js" defer></script>
+<script src="vendor/motion.js" defer></script>
 <script>
 /* ================= movimento: pochi gesti, tutti in risposta a un tocco ================= */
 window.addEventListener("load", () => {
