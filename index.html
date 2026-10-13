@@ -3629,7 +3629,9 @@ window.addEventListener("load", () => {
   function posiziona(c){
     const b = c.querySelector(":scope > button[aria-pressed='true']");
     let p = c.querySelector(":scope > .pillola");
-    if (!b || !b.offsetWidth){ if (p) p.style.opacity = "0"; return; }
+    // schermata nascosta: niente indicatore e il pulsante scelto torna a colorarsi da solo,
+    // così la scritta resta leggibile anche se l'indicatore non si rimette subito a posto
+    if (!b || !b.offsetWidth){ if (p) p.style.opacity = "0"; c.classList.remove("con-pillola"); ultimo.delete(c); return; }
     c.classList.add("con-pillola");
     const nav = c.classList.contains("navbar-in");
     const mx = nav ? MARGINE_NAV.x : 0, my = nav ? MARGINE_NAV.y : 0;
@@ -3638,7 +3640,7 @@ window.addEventListener("load", () => {
     if (nuova){ p = document.createElement("span"); p.className = "pillola"; p.setAttribute("aria-hidden", "true"); c.prepend(p); }
     const meta = ultimo.get(c);
     ultimo.set(c, {x, w});
-    if (meta && meta.x === x && meta.w === w && !nuova) return;
+    if (meta && meta.x === x && meta.w === w && !nuova){ p.style.opacity = "1"; return; }
     // si parte da dove l'indicatore si trova davvero (anche a metà di uno scorrimento)
     let da = null;
     if (!nuova && p.offsetWidth){
