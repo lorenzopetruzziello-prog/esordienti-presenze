@@ -299,6 +299,12 @@ textarea.campo.diario{min-height:0; font-size:14px}
 .foglio-corpo h3{font-family:var(--fd); font-stretch:80%; font-weight:800; font-size:19.5px; line-height:1.1; margin-bottom:3px}
 .foglio-corpo .sott{color:var(--tenue); font-size:12.5px; margin-bottom:10px}
 .menu{display:grid; gap:5px; margin-top:8px}
+/* assistente */
+.scelte{display:flex; flex-wrap:wrap; gap:5px}
+.scelte .chip{min-height:38px}
+.ass-prop{margin-top:14px; padding:10px 11px 4px; border-radius:14px; background:var(--pozzo); border:1px solid var(--linea2)}
+.ass-prop .elenco{margin-top:4px}
+.ass-perche{margin-top:9px; line-height:1.45}
 .menu button{display:flex; align-items:center; gap:10px; border:0; background:var(--pozzo); border-radius:11px; padding:11px 11px;
   font-size:15px; font-weight:600; text-align:left; min-height:42.5px}
 .menu button svg{width:16px; height:16px; flex:none; color:var(--tenue)}
@@ -985,6 +991,7 @@ body.calmo .pr-avanz i{transition:none}
         </div>
         <div class="azioni-seduta">
           <button class="btn largo pieno solo-scrivo" id="vai-compositore"><svg><use href="#i-piu"/></svg>Aggiungi una serie</button>
+          <button class="btn largo solo-scrivo" id="apri-assistente"><svg><use href="#i-bacchetta"/></svg>Crea la seduta con l'assistente</button>
           <button class="btn largo lavagna-btn" id="apri-lavagna"><svg><use href="#i-lavagna"/></svg>Mostra ai bambini</button>
           <button class="btn" id="condividi"><svg><use href="#i-cond"/></svg>Condividi</button>
           <button class="btn solo-scrivo" id="apri-modelli"><svg><use href="#i-modelli"/></svg>Modelli</button>
@@ -2326,6 +2333,166 @@ $("#duplica-giorno").addEventListener("click", () => {
         serie.push(...nuove); salva.serie(); chiudiFoglio(); renderTutto();
         toast("Copiata su " + nomeGruppo(g) + ", " + dataBreve(dest), () => elimina(nuove.map(s => s.id), true));
       }}, "Copia")));
+  });
+});
+
+/* ---------- assistente: propone una seduta intera ----------
+   Niente intelligenza artificiale esterna: regole semplici sopra le sedute del gruppo nelle ultime 6 settimane.
+   - metri: come la media recente, o quelli scelti
+   - su cosa puntare: lo stile più trascurato nelle ultime 3 settimane, o quello scelto
+   - tipo di lavoro: quello fatto meno nelle ultime sedute, o quello scelto
+   - blocchi nelle proporzioni usate di solito; dentro, prima le serie già fatte davvero, poi serie standard per completare */
+const ASS_QUOTE_STILE = {sl:.36, do:.17, ra:.17, fa:.12, mx:.18};
+const ASS_QUOTE_BLOCCO = {wu:.2, tec:.2, main:.45, def:.15};
+const ASS_TIPI = [["res", "Resistenza"], ["vel", "Velocità"], ["tec", "Tecnica"]];
+const ASS_DIST = {wu:[400, 200, 100, 50], tec:[50, 25], pre:[100, 50, 25], comp:[50, 25], gioco:[25], def:[200, 100, 50],
+  res:[200, 100, 50], vel:[50, 25], tecM:[100, 50, 25]};
+function casuale(seme){ return () => { seme |= 0; seme = seme + 0x6D2B79F5 | 0; let t = Math.imul(seme ^ seme >>> 15, 1 | seme); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const tipoSerieMain = l => {
+  const main = l.filter(s => s.b === "main"); if (!main.length) return null;
+  if (main.some(s => (s.a || []).some(a => a === "drill" || a === "scull"))) return "tec";
+  return totale(main) / main.reduce((a, s) => a + (s.gi || 1) * (s.r || 1), 0) <= 50 ? "vel" : "res";
+};
+function analisiAssistente(){
+  const g = pref.gruppo, prima = piuGiorni(dataSel, -1);
+  const l6 = serieTra(piuGiorni(dataSel, -42), prima, g), l3 = l6.filter(s => s.d >= piuGiorni(dataSel, -21));
+  const giorni = [...new Set(l6.map(s => s.d))].sort();
+  const sedute = giorni.map(d => l6.filter(s => s.d === d));
+  const media = sedute.length ? Math.round(totale(l6) / sedute.length / 100) * 100 : 0;
+  // stile più trascurato: la quota più sotto a quella di riferimento
+  const t3 = totale(l3), st = perStile(l3);
+  const quota = k => t3 ? (st[k] || 0) / t3 : 0;
+  const stile = Object.keys(ASS_QUOTE_STILE).sort((a, b) => (ASS_QUOTE_STILE[b] - quota(b)) - (ASS_QUOTE_STILE[a] - quota(a)))[0];
+  // tipo di lavoro meno fatto nelle ultime 6 sedute
+  const conta = {res:0, vel:0, tec:0};
+  sedute.slice(-6).forEach(x => { const t = tipoSerieMain(x); if (t) conta[t]++; });
+  const tipo = ASS_TIPI.map(x => x[0]).sort((a, b) => conta[a] - conta[b])[0];
+  // proporzioni dei blocchi abituali
+  let quote = Object.assign({}, ASS_QUOTE_BLOCCO);
+  if (sedute.length >= 3){
+    const somma = {};
+    sedute.forEach(x => { const t = totale(x); if (!t) return; const pb = perBlocco(x); Object.keys(pb).forEach(k => somma[k] = (somma[k] || 0) + pb[k] / t / sedute.length); });
+    quote = {}; Object.keys(somma).forEach(k => { if (somma[k] >= .05) quote[k] = somma[k]; });
+    if (!quote.main) quote.main = .4;
+  }
+  const gambe = t3 ? metriGambe(l3) / t3 : 0;
+  return {l6, sedute, media, stile, quotaStile:quota(stile), t3, tipo, quote, gambe, ultima:sedute[sedute.length - 1] || []};
+}
+function propostaAssistente(an, scelte, seme){
+  const rnd = casuale(seme);
+  const tot = scelte.metri || an.media || 2000, stile = scelte.stile || an.stile, tipo = scelte.tipo || an.tipo;
+  const quote = Object.assign({}, an.quote);
+  if (tipo === "tec"){ quote.tec = (quote.tec || 0) + .1; quote.main = Math.max(.25, quote.main - .1); }
+  if (!quote.comp && an.gambe < .06 && tot >= 1500){ quote.comp = .1; quote.main = Math.max(.25, quote.main - .1); }   // poche gambe di recente
+  const somma = Object.values(quote).reduce((a, b) => a + b, 0);
+  const blocchi = voci("blocco").filter(b => quote[b]);
+  const budget = {}; let usato = 0;
+  // ogni blocco a cifre tonde (100 m): niente avanzi da 50 che diventano serie spezzettate
+  blocchi.forEach(b => { budget[b] = Math.max(100, Math.round(tot * quote[b] / somma / 100) * 100); usato += budget[b]; });
+  budget.main = Math.max(100, (budget.main || 0) + tot - usato);
+  if (!blocchi.includes("main")) blocchi.splice(Math.min(blocchi.length, 2), 0, "main");
+  // le serie già fatte: una per firma, con quante volte
+  const giaFatte = new Map(), ultime = new Set(an.ultima.map(firma));
+  an.l6.forEach(s => { const k = s.b + "|" + firma(s), v = giaFatte.get(k); if (v) v.n++; else giaFatte.set(k, {s, n:1}); });
+  // partenza abituale per stile e distanza
+  const partenza = (s, m) => { const p = an.l6.filter(x => x.s === s && x.m === m && x.p).map(x => x.p).sort((a, b) => a - b); return p.length ? p[p.length >> 1] : 0; };
+  const out = []; let prese = 0;
+  blocchi.forEach(b => {
+    let resto = budget[b] || 0;
+    const mieStile = b === "tec" || b === "main" || b === "comp" || b === "pre";
+    const candidati = [...giaFatte.values()].filter(v => v.s.b === b).map(v => {
+      let p = Math.min(v.n, 4) * .75 + rnd() * 3 - (ultime.has(firma(v.s)) ? 1.5 : 0);
+      if (mieStile) p += v.s.s === stile ? 3 : -3;
+      if (b === "main"){ const t = tipoSerieMain([v.s]); p += t === tipo ? 2 : -2; }
+      return {s:v.s, p};
+    }).sort((a, b) => b.p - a.p);
+    let quante = 0;
+    for (const c of candidati){
+      if (resto < 50 || quante >= 3) break;
+      const m = metri(c.s);
+      if (m > resto || c.p < 1) continue;
+      out.push(Object.assign(copiaSerie(c.s), {b, n:""})); resto -= m; quante++; prese++;
+    }
+    // il resto con serie standard
+    const dist = b === "main" ? ASS_DIST[tipo === "tec" ? "tecM" : tipo] : ASS_DIST[b] || [100, 50, 25];
+    const st = b === "def" ? "sl" : b === "wu" ? (out.some(x => x.b === "wu" && x.s === "mx") ? "sl" : "mx") : mieStile ? stile : "sl";
+    const attr = b === "tec" || (b === "main" && tipo === "tec") ? ["drill"] : b === "comp" ? ["gambe"] : [];
+    const aggiungi = (r, d) => {
+      const u = out[out.length - 1], p = b === "main" || b === "pre" ? partenza(st, d) : 0;
+      // uguale alla serie appena sopra: si sommano le ripetizioni invece di scriverla due volte
+      if (u && u.b === b && u.s === st && u.m === d && (u.gi || 1) === 1 && (u.a || []).join() === attr.join() && (u.p || 0) === p) u.r = (u.r || 1) + r;
+      else out.push({gi:1, r, m:d, s:st, z:"", b, a:attr.slice(), p, n:""});
+      resto -= r * d;
+    };
+    // meglio una sola serie che divida il resto in parti uguali (es. 9×50), scelta a caso fra quelle possibili
+    const pulite = dist.filter(d => resto % d === 0 && resto / d >= (b === "wu" || b === "def" ? 1 : 2) && resto / d <= 16);
+    if (pulite.length){ const d = b === "wu" || b === "def" ? pulite[0] : pulite[Math.floor(rnd() * pulite.length)]; aggiungi(resto / d, d); }
+    for (const d of dist){
+      if (resto < d) continue;
+      let r = Math.floor(resto / d);
+      if (b === "wu" && d >= 200) r = 1;
+      if (r > 16) r = 16;
+      aggiungi(r, d);
+    }
+  });
+  return {serie:out, tot, stile, tipo, prese};
+}
+$("#apri-assistente").addEventListener("click", () => {
+  if (soloLettura()) return;
+  const an = analisiAssistente();
+  const scelte = {metri:0, stile:"", tipo:""};
+  let seme = Date.now() % 100000, prop = null;
+  apriFoglio(c => {
+    const corpo = el("div");
+    const fila = (titolo, opzioni, chiave) => {
+      const r = el("div", {class:"scelte"});
+      opzioni.forEach(([v, t, col]) => r.append(el("button", {class:"chip t" + (col ? " col" : ""), style:col ? "--c:" + colore(v) : null,
+        "aria-pressed":String(scelte[chiave] === v), onclick:() => { scelte[chiave] = v; disegna(); }}, t)));
+      return [el("label", {class:"et"}, titolo), r];
+    };
+    const giro = [1000, 1500, 2000, 2500, 3000, 3500];
+    const disegna = () => {
+      prop = propostaAssistente(an, scelte, seme);
+      corpo.innerHTML = "";
+      corpo.append(
+        ...fila("Metri", [[0, "Automatico" + (an.media ? " (" + fmt(an.media) + ")" : "")]].concat(giro.map(m => [m, fmt(m)])), "metri"),
+        ...fila("Su cosa puntare", [["", "Automatico"]].concat(STILI.map(([k, n]) => [k, n, true])), "stile"),
+        ...fila("Tipo di lavoro", [["", "Automatico"]].concat(ASS_TIPI), "tipo"));
+      const ul = el("ul", {class:"elenco"});
+      gruppiBlocchi(prop.serie).forEach(gr => {
+        ul.append(el("li", {class:"blocco-testa"}, el("span", null, nomeBlocco(gr.b, true)), el("span", {class:"num"}, fmt(totale(gr.l)) + " m")));
+        gr.l.forEach(s => { const det = dettaglio(s); ul.append(el("li", null, el("div", {class:"voce", style:"--c:" + colore(s.s)},
+          el("span", {class:"zbar", style:"background:" + colore(s.s)}),
+          el("span", {class:"desc"}, el("b", null, descr(s)), det ? el("small", null, det) : null),
+          el("span", {class:"mt num"}, fmt(metri(s)))))); });
+      });
+      const perche = [];
+      perche.push(scelte.metri ? "Metri scelti da te." : an.media ? "Metri come la tua media: " + fmt(an.media) + " m su " + an.sedute.length + " sedute nelle ultime 6 settimane." : "Ancora poche sedute salvate: parto da 2.000 m.");
+      if (!scelte.stile){
+        const q = Math.round(an.quotaStile * 100), nome = NOMI_STILE_LUNGHI[prop.stile];
+        perche.push(!an.t3 ? "Punto su " + nome + "." : q ? "Punto su " + nome + ": nelle ultime 3 settimane è solo il " + q + "% dei metri." : "Punto su " + nome + ": nelle ultime 3 settimane non c'è mai stata.");
+      }
+      if (!scelte.tipo) perche.push("Lavoro di " + ASS_TIPI.find(x => x[0] === prop.tipo)[1].toLowerCase() + ": il meno fatto nelle ultime sedute.");
+      if (prop.prese) perche.push(prop.prese + (prop.prese === 1 ? " serie presa" : " serie prese") + " dalle tue sedute, il resto completato con serie standard.");
+      const gia = serieGiorno(dataSel).length;
+      corpo.append(el("div", {class:"ass-prop"},
+        el("div", {class:"riga", style:"justify-content:space-between"}, el("b", null, "Proposta"), el("b", {class:"num"}, fmt(totale(prop.serie)) + " m")), ul),
+        el("p", {class:"nota ass-perche"}, perche.join(" ")),
+        gia ? el("p", {class:"nota"}, "Si aggiunge alle " + gia + " serie già nella seduta.") : null);
+    };
+    disegna();
+    c.append(el("h3", null, "Crea la seduta"), el("p", {class:"sott"}, "Lascia Automatico o scegli tu: la proposta cambia subito. Poi la puoi modificare come sempre."),
+      corpo,
+      el("div", {class:"azioni"},
+        el("button", {class:"btn", onclick:() => { seme = seme * 7 + 13; disegna(); vibra(6); }}, "Un'altra proposta"),
+        el("button", {class:"primario", style:"flex:1", onclick:() => {
+          if (!prop || !prop.serie.length) return;
+          const ord = ordiniNuovi(prop.serie.length);
+          const nuove = prop.serie.map((x, k) => nuovaSerie(x, dataSel, pref.gruppo, statoF, ord[k]));
+          proseguiInserimento(nuove[nuove.length - 1]);
+          serie.push(...nuove); salva.serie(); chiudiFoglio(); renderSeduta();
+          toast("Seduta creata: " + nuove.length + " serie", () => elimina(nuove.map(s => s.id), true));
+        }}, "Aggiungi alla seduta")));
   });
 });
 
