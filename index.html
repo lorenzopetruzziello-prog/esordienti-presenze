@@ -840,7 +840,6 @@ button.pr-nome:disabled{cursor:default}
 #v-presenze .titolo-giorno h1{font-size:22px}
 #v-presenze .pr-riepilogo{padding:10px 13px 9px}
 
-#v-presenze #pr-tab{margin-top:8px !important}
 #v-presenze .titolo-giorno{margin-top:6px}
 #v-presenze .striscia-wrap{margin-top:6px}
 #v-presenze .giorno-btn{padding:3px 0 4px; gap:1px}
@@ -872,6 +871,32 @@ button.pr-nome:disabled{cursor:default}
 .vuoto-seduta.in-arrivo .sk-r{width:70%}
 .vuoto-seduta.in-arrivo .sk-r.corto{width:45%}
 @keyframes sk{from{background-position:200% 0} to{background-position:-200% 0}}
+/* --- Presenze: comandi in una barra fissa in basso (zona del pollice) --- */
+.pr-barra{position:fixed; left:10px; right:10px; bottom:calc(var(--base-nav, 70px) + 8px); z-index:45; padding:10px 12px 12px;
+  border-radius:20px; background:var(--base-vetro); border:1px solid var(--vetro-bordo); box-shadow:0 14px 30px -14px rgba(0,0,0,.7);
+  display:none; flex-direction:column; gap:9px; max-width:640px; margin:0 auto}
+.vista.attiva .pr-barra{display:flex}
+#v-presenze{padding-bottom:calc(var(--alt-barra, 0px) + 16px)}
+.pr-barra .seg{margin:0}
+#pr-barra-corpo{display:flex; flex-direction:column; gap:8px}
+#pr-barra-corpo:empty{display:none}
+#v-presenze .pr-barra .pr-riepilogo{position:static; margin:0; padding:0; background:none; border:0; box-shadow:none}
+.pr-barra .pr-comandi{margin:0}
+body.in-pres .toast{bottom:calc(var(--base-nav, 70px) + var(--alt-barra, 0px) + 20px)}
+.pr-conti-top{margin-top:4px}
+.pr-conti-top .pr-conti{padding:0 2px}
+.pr-barra{padding:0 10px 10px; gap:6px; overflow:hidden}
+#pr-barra-corpo{gap:6px}
+.pr-barra .pr-avanz{height:5px; margin:0 -10px; border-radius:0; background:rgba(0,0,0,.28)}
+/* giorno di allenamento previsto: il numero resta quello di sempre, la barretta sotto è gialla */
+.giorno-btn.previsto:not([aria-pressed="true"]) .gd{color:var(--gesso)}
+/* giorni di allenamento nelle Impostazioni: sette pulsanti per gruppo */
+.imp-giorni-riga{display:grid; grid-template-columns:1fr; gap:8px; align-items:start}
+.giorni-sett{display:grid; grid-template-columns:repeat(7, 1fr); gap:5px}
+.giorni-sett button{min-height:44px; border-radius:10px; border:1px solid var(--vetro-bordo); background:rgba(255,255,255,.045); color:var(--tenue); font-weight:650; font-size:14px; padding:0}
+:where(:root[data-theme="sole"],:root[data-theme="light"]) .giorni-sett button{background:#fff}
+.giorni-sett button[aria-pressed="true"]{background:linear-gradient(135deg, var(--cloro), var(--cloro2)); color:var(--testo-cloro); border-color:transparent}
+.giorni-sett button[disabled]{opacity:.5}
 </style>
 </head>
 <body>
@@ -1108,7 +1133,6 @@ button.pr-nome:disabled{cursor:default}
 
 <!-- =================== PRESENZE =================== -->
 <section class="vista" id="v-presenze" aria-label="Presenze">
-  <div class="seg largo" id="pr-tab" role="group" aria-label="Gruppo" style="margin-top:13px"></div>
   <div class="striscia-wrap"><div class="striscia" id="pr-striscia"></div></div>
   <div class="titolo-giorno">
     <div><h1 id="pr-titolo">Presenze</h1><p id="pr-sotto"></p></div>
@@ -1118,8 +1142,13 @@ button.pr-nome:disabled{cursor:default}
       <button class="freccia" id="pr-succ" aria-label="Settimana successiva"><svg><use href="#i-dx"/></svg></button>
     </div>
   </div>
+  <div class="pr-conti-top" id="pr-conti-top"></div>
   <div id="pr-avviso"></div>
   <div id="pr-corpo"></div>
+  <div class="pr-barra" id="pr-barra">
+    <div id="pr-barra-corpo"></div>
+    <div class="seg largo" id="pr-tab" role="group" aria-label="Gruppo"></div>
+  </div>
 </section>
 
 <!-- =================== FOGLIO =================== -->
@@ -1141,6 +1170,11 @@ button.pr-nome:disabled{cursor:default}
       <div class="imp-riga"><label for="font-sel">Carattere</label><select class="campo imp-select" id="font-sel"></select></div>
       <div class="imp-riga"><span>Animazioni</span><div class="seg" id="imp-moto" role="group" aria-label="Animazioni"></div></div>
     </div>
+  </div>
+  <div class="sez">
+    <div class="sez-testa"><h2>Giorni di allenamento</h2></div>
+    <div class="pannello imp-lista" id="imp-giorni"></div>
+    <p class="nota" style="margin-top:8px">Le Presenze si aprono sul giorno di allenamento e lo segnano in giallo nella striscia dei giorni. Valgono per tutti i dispositivi collegati al foglio.</p>
   </div>
   <div class="sez">
     <div class="sez-testa"><h2>A bordo vasca</h2></div>
@@ -2780,7 +2814,24 @@ function interruttore(b, acceso, cambia, disattivo){
   b.setAttribute("aria-checked", String(!!acceso)); b.disabled = !!disattivo;
   b.onclick = () => cambia(!acceso);
 }
+function renderGiorniAllenamento(){
+  const box = $("#imp-giorni"); if (!box) return;
+  box.innerHTML = "";
+  PR_TAB.forEach(([nome, corto]) => {
+    const sel = (pref.giorni || {})[nome] || [];
+    const riga = el("div", {class:"imp-riga imp-giorni-riga"}, el("span", null, nome === "PREAGONISTI" ? "Preagonisti" : corto.replace("Esord.", "Esordienti")));
+    const g = el("div", {class:"giorni-sett", role:"group", "aria-label":"Giorni di allenamento di " + corto});
+    GIORNI.forEach((gn, i) => g.append(el("button", {type:"button", "aria-pressed":String(sel.includes(i)), "aria-label":GIORNI_L[i], disabled:soloLettura(), onclick:() => {
+      if (soloLettura()) return;
+      const nuovo = sel.includes(i) ? sel.filter(x => x !== i) : sel.concat(i).sort();
+      pref.giorni = Object.assign({}, pref.giorni, {[nome]:nuovo});
+      segnaImpostazioni(); renderGiorniAllenamento();
+    }}, gn)));
+    riga.append(g); box.append(riga);
+  });
+}
 function renderFont(){
+  renderGiorniAllenamento();
   segmenti($("#imp-tema"), [[null, "Automatico"], ["sole", "Chiaro"], ["notte", "Scuro"]], pref.tema || null, v => {
     pref.tema = v; salva.pref(); applicaTema(); renderTutto();
   });
@@ -2896,7 +2947,7 @@ function sedutaPerFoglio(k){
   const x = k.indexOf("|"), g = k.slice(0, x), d = k.slice(x + 1), n = note[k] || {t:"", ts:0};
   return {chiave:k, archivio:{g, d, serie:serie.filter(s => s.g === g && s.d === d), tolte:tombe.sedute[k] || {}, nota:n.t || "", notaTs:n.ts || 0}};
 }
-const impostazioniPerFoglio = () => ({nomi:pref.nomi, vasca:pref.vasca, voci:pref.voci, nascoste:pref.nascoste, ts:pref.impTs || 0});
+const impostazioniPerFoglio = () => ({nomi:pref.nomi, vasca:pref.vasca, voci:pref.voci, nascoste:pref.nascoste, giorni:pref.giorni || {}, ts:pref.impTs || 0});
 const listePerFoglio = () => ({
   obiettivi:{lista:obiettivi, tolte:tombe.liste.obiettivi}, gare:{lista:gare, tolte:tombe.liste.gare}, modelli:{lista:modelli, tolte:tombe.liste.modelli}});
 
@@ -2936,7 +2987,7 @@ function applicaVoci(voci){
   obiettivi = lista("obiettivi", obiettivi); gare = lista("gare", gare); modelli = lista("modelli", modelli);
   const imp = altro.impostazioni && altro.impostazioni.v;
   if (imp && (imp.ts || 0) > (pref.impTs || 0)){
-    pref.nomi = imp.nomi || {}; pref.vasca = imp.vasca || 25; pref.voci = imp.voci || {}; pref.nascoste = imp.nascoste || {}; pref.impTs = imp.ts; cambiate.add("impostazioni");
+    pref.nomi = imp.nomi || {}; pref.vasca = imp.vasca || 25; pref.voci = imp.voci || {}; pref.nascoste = imp.nascoste || {}; if (imp.giorni) pref.giorni = imp.giorni; pref.impTs = imp.ts; cambiate.add("impostazioni");
   }
   Mem.scrivi(K.serie, serie); Mem.scrivi(K.note, note); Mem.scrivi(K.obiettivi, obiettivi); Mem.scrivi(K.gare, gare);
   Mem.scrivi(K.modelli, modelli); salva.tombe(); salva.pref(); salva.coda();
@@ -3195,10 +3246,20 @@ let presSel = {g:pref.presG || PR_TAB[0][0], d:oggi()};
 /* Seduta e Presenze condividono il gruppo (A, B, C): se cambia in Seduta, Presenze lo segue */
 const PR_GRUPPO_ID = {esa:"ESORDIENTI A", esb:"ESORDIENTI B", esc:"ESORDIENTI C"};
 let presGruppoVisto = pref.gruppo;
+/* giorni di allenamento scelti per ogni gruppo (Impostazioni): all'apertura Presenze propone oggi se c'è allenamento,
+   altrimenti l'ultimo giorno di allenamento passato, così non serve cercarlo. Il tasto "Oggi" riporta a oggi. */
+function presGiornoPerGruppo(nome){
+  const cfg = (pref.giorni || {})[nome], og = oggi();
+  if (!cfg || !cfg.length || cfg.includes(dow(og))) return og;
+  for (let i = 1; i <= 7; i++){ const x = piuGiorni(og, -i); if (cfg.includes(dow(x))) return x; }
+  return og;
+}
+let presGiornoFatto = false;
 function presSeguiGruppo(){
+  if (!presGiornoFatto){ presGiornoFatto = true; presSel.d = presGiornoPerGruppo(presSel.g); }
   if (pref.gruppo === presGruppoVisto) return;
   presGruppoVisto = pref.gruppo;
-  if (PR_GRUPPO_ID[pref.gruppo]){ presSel.g = PR_GRUPPO_ID[pref.gruppo]; pref.presG = presSel.g; }
+  if (PR_GRUPPO_ID[pref.gruppo]){ presSel.g = PR_GRUPPO_ID[pref.gruppo]; pref.presG = presSel.g; presSel.d = presGiornoPerGruppo(presSel.g); }
 }
 let presStato = {caricando:false, invio:false, errore:"", ultimo:0, ack:0};
 let presTimer = null;
@@ -3364,9 +3425,10 @@ function renderPresenze(){
   // del foglio cancellerebbero il campo e il testo appena scritto
   if (document.activeElement && document.activeElement.id === "pr-nota"){ aggiornaPresStato(); return; }
   const ro = soloLettura(), og = oggi(), d = presSel.d;
+  $("#pr-barra-corpo").innerHTML = ""; $("#pr-conti-top").innerHTML = "";
   const tab = $("#pr-tab"); tab.querySelectorAll(":scope > button").forEach(b => b.remove());
   PR_TAB.forEach(([n, c]) => tab.append(el("button", {"aria-pressed":String(n === presSel.g), onclick:() => {
-    presSel.g = n; pref.presG = n;
+    presSel.g = n; pref.presG = n; presSel.d = presGiornoPerGruppo(n);
     const id = Object.keys(PR_GRUPPO_ID).find(k => PR_GRUPPO_ID[k] === n);
     if (id){ pref.gruppo = id; presGruppoVisto = id; renderGruppi(); }   // il gruppo vale anche per la Seduta
     salva.pref(); renderPresenze();
@@ -3376,9 +3438,12 @@ function renderPresenze(){
   const l = lunediDi(d), st = $("#pr-striscia"); st.innerHTML = "";
   for (let i = 0; i < 7; i++){
     const gg = piuGiorni(l, i), x = r && r.m[gg];
-    const barra = el("span", {class:"gm"}, x && x.a === "1" ? el("i", {style:"width:100%;background:var(--ok)"}) : null);
-    st.append(el("button", {class:"giorno-btn" + (gg === og ? " oggi" : ""), "aria-pressed":String(gg === d),
-      "aria-label":dataLunga(gg) + (x && x.a === "1" ? ", allenamento svolto" : ""), onclick:() => { presSel.d = gg; renderPresenze(); }},
+    // verde = allenamento segnato; giallo = giorno di allenamento previsto per questo gruppo, non ancora segnato
+    const previsto = ((pref.giorni || {})[presSel.g] || []).includes(i);
+    const fatto = x && x.a === "1";
+    const barra = el("span", {class:"gm"}, fatto ? el("i", {style:"width:100%;background:var(--ok)"}) : previsto ? el("i", {style:"width:100%;background:var(--en2)"}) : null);
+    st.append(el("button", {class:"giorno-btn" + (gg === og ? " oggi" : "") + (previsto ? " previsto" : ""), "aria-pressed":String(gg === d),
+      "aria-label":dataLunga(gg) + (fatto ? ", allenamento svolto" : previsto ? ", allenamento previsto" : ""), onclick:() => { presSel.d = gg; renderPresenze(); }},
       el("span", {class:"gn"}, GIORNI[i]), el("span", {class:"gd"}, daIso(gg).getDate()), barra));
   }
   $("#pr-titolo").textContent = maiusc(dataLunga(d));
@@ -3446,10 +3511,15 @@ function renderPresenze(){
     toast(n + (n === 1 ? " segnata presente" : " segnate presenti"), () => presModifica(sc.nome, d, inverso));
   }}, "Tutte presenti");
   const comandi = el("div", {class:"pr-comandi"},
-    el("button", {class:"btn", "aria-pressed":String(svolto), disabled:ro, onclick:() => presModifica(sc.nome, d, {a:svolto ? "0" : "1"})},
-      svolto ? "Allenamento svolto" : "Allenamento non svolto"), tutte);
+    el("button", {class:"btn", "aria-pressed":String(svolto), "aria-label":svolto ? "Allenamento svolto: tocca per toglierlo" : "Allenamento non svolto: tocca per segnarlo", disabled:ro,
+      onclick:() => presModifica(sc.nome, d, {a:svolto ? "0" : "1"})}, svolto ? "Allenamento: sì" : "Allenamento: no"), tutte);
   c.append(el("div", {class:"sez"},
-    el("div", {class:"pannello"}, presRiepilogo(sc.nome + "|" + d, np, na, sc.atleti.length), comandi, lista)));
+    el("div", {class:"pannello"}, lista)));
+  // riepilogo e comandi stanno nella barra in basso, dove arriva il pollice
+  // i conteggi stanno sotto il titolo; in basso restano la barra di avanzamento, i comandi e i gruppi
+  const riep = presRiepilogo(sc.nome + "|" + d, np, na, sc.atleti.length);
+  $("#pr-conti-top").replaceChildren(riep.querySelector(".pr-conti"));
+  $("#pr-barra-corpo").append(riep.querySelector(".pr-avanz"), comandi);
 
   /* note */
   const nota = el("textarea", {class:"campo diario", id:"pr-nota", rows:2, "aria-label":"Note della giornata", disabled:ro});
@@ -3525,6 +3595,22 @@ dopoTocco();
 if (foglioPronto() && foglio.legato === legame()) sincronizza({});
 programmaPoll();
 
+</script>
+<script>
+/* ================= misure della barra in basso di Presenze ================= */
+(function(){
+  const radice = document.documentElement.style;
+  function misura(){
+    const n = document.querySelector(".navbar"), b = document.getElementById("pr-barra");
+    if (n) radice.setProperty("--base-nav", Math.round(innerHeight - n.getBoundingClientRect().top) + "px");
+    radice.setProperty("--alt-barra", (b && b.offsetHeight ? Math.round(b.offsetHeight) : 0) + "px");
+  }
+  const b = document.getElementById("pr-barra"), n = document.querySelector(".navbar");
+  if (window.ResizeObserver){ const ro = new ResizeObserver(misura); if (b) ro.observe(b); if (n) ro.observe(n); }
+  window.addEventListener("resize", misura);
+  document.addEventListener("visibilitychange", misura);
+  misura();
+})();
 </script>
 <script src="vendor/motion.js" defer></script>
 <script>
