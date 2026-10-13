@@ -820,23 +820,6 @@ button.pr-nome:disabled{cursor:default}
 .vuoto-seduta.in-arrivo{display:grid; gap:9px; justify-items:center; padding:24px 3px 20px}
 .vuoto-seduta.in-arrivo .sk-r{width:70%}
 .vuoto-seduta.in-arrivo .sk-r.corto{width:45%}
-/* --- Presenze: comandi in una barra fissa in basso (zona del pollice) --- */
-.pr-barra{position:fixed; left:10px; right:10px; bottom:calc(var(--base-nav, 70px) + 8px); z-index:45; padding:10px 12px 12px;
-  border-radius:20px; background:var(--base-vetro); border:1px solid var(--vetro-bordo); box-shadow:0 14px 30px -14px rgba(0,0,0,.7);
-  display:none; flex-direction:column; gap:9px; max-width:640px; margin:0 auto}
-.vista.attiva .pr-barra{display:flex}
-#v-presenze{padding-bottom:calc(var(--alt-barra, 0px) + 16px)}
-.pr-barra .seg{margin:0}
-#pr-barra-corpo{display:flex; flex-direction:column; gap:8px}
-#pr-barra-corpo:empty{display:none}
-#v-presenze .pr-barra .pr-riepilogo{position:static; margin:0; padding:0; background:none; border:0; box-shadow:none}
-.pr-barra .pr-comandi{margin:0}
-body.in-pres .toast{bottom:calc(var(--base-nav, 70px) + var(--alt-barra, 0px) + 20px)}
-.pr-conti-top{margin-top:4px}
-.pr-conti-top .pr-conti{padding:0 2px}
-.pr-barra{padding:0 10px 10px; gap:6px; overflow:hidden}
-#pr-barra-corpo{gap:6px}
-.pr-barra .pr-avanz{height:5px; margin:0 -10px; border-radius:0; background:rgba(0,0,0,.28)}
 /* =====================================================================
    SISTEMA DI MOVIMENTO
    Carattere: rapido e preciso. L'acqua si muove piano e non si nota; l'interfaccia risponde subito.
@@ -1140,6 +1123,7 @@ body.calmo .pr-avanz i{transition:none}
 
 <!-- =================== PRESENZE =================== -->
 <section class="vista" id="v-presenze" aria-label="Presenze">
+  <div class="seg largo" id="pr-tab" role="group" aria-label="Gruppo" style="margin-top:10px"></div>
   <div class="striscia-wrap"><div class="striscia" id="pr-striscia"></div></div>
   <div class="titolo-giorno">
     <div><h1 id="pr-titolo">Presenze</h1><p id="pr-sotto"></p></div>
@@ -1149,13 +1133,8 @@ body.calmo .pr-avanz i{transition:none}
       <button class="freccia" id="pr-succ" aria-label="Settimana successiva"><svg><use href="#i-dx"/></svg></button>
     </div>
   </div>
-  <div class="pr-conti-top" id="pr-conti-top"></div>
   <div id="pr-avviso"></div>
   <div id="pr-corpo"></div>
-  <div class="pr-barra" id="pr-barra">
-    <div id="pr-barra-corpo"></div>
-    <div class="seg largo" id="pr-tab" role="group" aria-label="Gruppo"></div>
-  </div>
 </section>
 
 <!-- =================== FOGLIO =================== -->
@@ -3323,7 +3302,7 @@ function presModifica(nomeScheda, data, patch, senzaDisegno){
 function presAggiornaSul(nomeScheda, data){
   if (vista !== "v-presenze" || nomeScheda !== presSel.g || data !== presSel.d) return false;
   const r = presMap[nomeScheda], g = r && r.m[data], lista = $("#pr-corpo .pr-lista");
-  if (!g || !lista || lista.children.length !== r.sc.atleti.length || !$("#pr-barra-corpo .pr-avanz")) return false;
+  if (!g || !lista || lista.children.length !== r.sc.atleti.length || !$("#pr-corpo .pr-riepilogo")) return false;
   const sc = r.sc, conti = presConti(sc), tot = conti.fatti;
   let np = 0, na = 0;
   sc.atleti.forEach((brutto, i) => {
@@ -3337,10 +3316,8 @@ function presAggiornaSul(nomeScheda, data){
     const sotto = nome.querySelector("small");
     if (sotto) sotto.replaceChildren(q.cat ? q.cat + (tot ? " · " : "") : "", ...(tot ? [conti.p[i] + "/" + tot + " · ", el("span", {class:"pr-pct"}, pct(conti.p[i], tot) + "%")] : []));
   });
-  // conteggi in alto e barra di avanzamento (la barra si allunga dalle misure di prima)
-  const riep = presRiepilogo(sc.nome + "|" + data, np, na, sc.atleti.length);
-  $("#pr-conti-top").replaceChildren(riep.querySelector(".pr-conti"));
-  $("#pr-barra-corpo .pr-avanz").replaceWith(riep.querySelector(".pr-avanz"));
+  // riepilogo con conteggi e barra di avanzamento (la barra si allunga dalle misure di prima)
+  $("#pr-corpo .pr-riepilogo").replaceWith(presRiepilogo(sc.nome + "|" + data, np, na, sc.atleti.length));
   // la barretta del giorno nella striscia
   const gg = $("#pr-striscia .giorno-btn[aria-pressed='true'] .gm");
   if (gg){ gg.replaceChildren(...(g.a === "1" ? [el("i", {style:"width:100%;background:var(--ok)"})] : [])); }
@@ -3452,7 +3429,7 @@ function renderPresenze(){
   // del foglio cancellerebbero il campo e il testo appena scritto
   if (document.activeElement && document.activeElement.id === "pr-nota"){ aggiornaPresStato(); return; }
   const ro = soloLettura(), og = oggi(), d = presSel.d;
-  $("#pr-barra-corpo").innerHTML = ""; $("#pr-conti-top").innerHTML = "";
+
   const tab = $("#pr-tab"); tab.querySelectorAll(":scope > button").forEach(b => b.remove());
   PR_TAB.forEach(([n, c]) => tab.append(el("button", {"aria-pressed":String(n === presSel.g), onclick:() => {
     presSel.g = n; pref.presG = n;
@@ -3537,13 +3514,9 @@ function renderPresenze(){
     toast(n + (n === 1 ? " segnata presente" : " segnate presenti"), () => presModifica(sc.nome, d, inverso));
   }}, "Tutte presenti");
   const comandi = el("div", {class:"pr-comandi"}, tutte);
+  // riepilogo (fisso in alto mentre scorri), "Tutte presenti", poi l'elenco
   c.append(el("div", {class:"sez"},
-    el("div", {class:"pannello"}, lista)));
-  // riepilogo e comandi stanno nella barra in basso, dove arriva il pollice
-  // i conteggi stanno sotto il titolo; in basso restano la barra di avanzamento, i comandi e i gruppi
-  const riep = presRiepilogo(sc.nome + "|" + d, np, na, sc.atleti.length);
-  $("#pr-conti-top").replaceChildren(riep.querySelector(".pr-conti"));
-  $("#pr-barra-corpo").append(riep.querySelector(".pr-avanz"), comandi);
+    el("div", {class:"pannello"}, presRiepilogo(sc.nome + "|" + d, np, na, sc.atleti.length), comandi, lista)));
 
   /* note */
   const nota = el("textarea", {class:"campo diario", id:"pr-nota", rows:2, "aria-label":"Note della giornata", disabled:ro});
@@ -3619,22 +3592,6 @@ dopoTocco();
 if (foglioPronto() && foglio.legato === legame()) sincronizza({});
 programmaPoll();
 
-</script>
-<script>
-/* ================= misure della barra in basso di Presenze ================= */
-(function(){
-  const radice = document.documentElement.style;
-  function misura(){
-    const n = document.querySelector(".navbar"), b = document.getElementById("pr-barra");
-    if (n) radice.setProperty("--base-nav", Math.round(innerHeight - n.getBoundingClientRect().top) + "px");
-    radice.setProperty("--alt-barra", (b && b.offsetHeight ? Math.round(b.offsetHeight) : 0) + "px");
-  }
-  const b = document.getElementById("pr-barra"), n = document.querySelector(".navbar");
-  if (window.ResizeObserver){ const ro = new ResizeObserver(misura); if (b) ro.observe(b); if (n) ro.observe(n); }
-  window.addEventListener("resize", misura);
-  document.addEventListener("visibilitychange", misura);
-  misura();
-})();
 </script>
 <script>
 /* ================= movimento ================= */
