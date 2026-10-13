@@ -83,8 +83,7 @@ h1,h2,h3,p{margin:0}
 /* ---------- impianto ---------- */
 main{max-width:1180px; margin:0 auto; padding:0 13px 19.5px}
 .vista{display:none}
-.vista.attiva{display:block; animation:entra .28s ease-out}
-@keyframes entra{from{opacity:0; transform:translateY(5px)} to{opacity:1; transform:none}}
+.vista.attiva{display:block}
 .sez{margin-top:21px}
 .sez-testa{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:8px}
 .sez-testa h2, h2.titoletto{font-size:14px; font-weight:650; color:var(--tenue); letter-spacing:.01em}
@@ -333,9 +332,6 @@ textarea.campo.diario{min-height:0; font-size:14px}
   .griglia-sett{display:grid; grid-template-columns:1fr 1fr; gap:22.5px; align-items:start}
   .griglia-sett .sez:first-child{margin-top:21px}
 }
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation:none !important; transition:none !important}
-}
 
 /* campi sempre a 14.5px: sotto questa misura iOS ingrandisce la pagina al tocco */
 input,select,textarea,.cmd,.campo,.rip-tab input{font-size:18.5px}
@@ -456,41 +452,6 @@ body.ro .sessione .voce .mt{font-size:17px}
 body.ro .sessione .voce .desc small{font-size:14.5px}
 body.ro .sess-tot .num{font-size:44px}
 
-/* ---------- esordienti ---------- */
-.caricamento{position:fixed; inset:0; z-index:120; background:color-mix(in srgb, var(--acqua) 94%, transparent);
-  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); display:grid; place-items:center; animation:sfuma .2s}
-.caricamento[hidden]{display:none}
-.car-corpo{display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; padding:24px}
-.car-logo{width:132px; height:132px; filter:drop-shadow(0 14px 28px rgba(0,0,0,.35)); animation:car-entra .45s cubic-bezier(.2,.8,.2,1)}
-.car-logo{position:relative; border-radius:30px; overflow:hidden; box-shadow:0 0 0 1px rgba(77,182,242,.22), 0 0 46px -6px rgba(36,140,255,.55), 0 18px 34px -14px rgba(0,0,0,.7)}
-.car-img{width:100%; height:100%; display:block; border-radius:30px; animation:car-respiro 3s ease-in-out infinite}
-.car-luce{position:absolute; inset:0; border-radius:30px; pointer-events:none; mix-blend-mode:screen;
-  background:linear-gradient(105deg, transparent 38%, rgba(120,220,255,.34) 50%, transparent 62%); background-size:260% 100%; background-position:130% 0; animation:car-passa 2.6s ease-in-out infinite}
-@keyframes car-respiro{0%,100%{transform:scale(1); filter:brightness(1)} 50%{transform:scale(1.025); filter:brightness(1.14) saturate(1.1)}}
-@keyframes car-passa{0%{background-position:130% 0} 70%,100%{background-position:-30% 0}}
-.car-onda{animation:car-scorre 2.6s linear infinite}
-.car-onda-davanti{animation-duration:1.9s; animation-direction:reverse}
-.car-gall > g{transform-box:fill-box; transform-origin:50% 60%; animation:car-dondola 1.9s ease-in-out infinite}
-.car-gall .g2{animation-delay:-.4s} .car-gall .g3{animation-delay:-.8s} .car-gall .g4{animation-delay:-1.2s} .car-gall .g5{animation-delay:-1.6s}
-.car-riflessi path{animation:car-luccica 2.4s ease-in-out infinite}
-.car-riflessi path:nth-child(2){animation-delay:-.8s} .car-riflessi path:nth-child(3){animation-delay:-1.6s}
-.car-testo{display:inline-flex; align-items:baseline}
-.car-puntini{display:inline-flex; gap:3px; margin-left:4px; font-style:normal}
-.car-puntini i{width:4px; height:4px; border-radius:50%; background:var(--tenue); animation:car-punto 1.2s ease-in-out infinite}
-.car-puntini i:nth-child(2){animation-delay:.2s} .car-puntini i:nth-child(3){animation-delay:.4s}
-.car-neon{animation:car-neon 3.2s ease-in-out infinite}
-.car-alone{animation:car-alone 3.2s ease-in-out infinite}
-.car-riflesso{animation:car-neon 3.2s ease-in-out infinite; opacity:.9}
-@keyframes car-neon{0%,100%{opacity:1} 45%{opacity:.86} 88%{opacity:1} 89.5%{opacity:.45} 91%{opacity:1} 92.5%{opacity:.7} 94%{opacity:1}}
-@keyframes car-alone{0%,100%{opacity:1} 45%{opacity:.7}}
-@keyframes car-scorre{from{transform:translateX(0)} to{transform:translateX(-60px)}}
-@keyframes car-dondola{0%,100%{transform:translateY(0) rotate(-4deg)} 50%{transform:translateY(-4.5px) rotate(4deg)}}
-@keyframes car-luccica{0%,100%{opacity:.2} 50%{opacity:1}}
-@keyframes car-punto{0%,80%,100%{opacity:.25; transform:translateY(0)} 40%{opacity:1; transform:translateY(-3px)}}
-@keyframes car-entra{from{transform:scale(.86); opacity:0}}
-@media (prefers-reduced-motion:reduce){ .car-onda, .car-gall > g, .car-riflessi path, .car-puntini i, .car-logo, .car-neon, .car-alone, .car-riflesso, .car-img, .car-luce{animation:none} }
-.car-corpo b{font-family:var(--fd); font-stretch:80%; font-weight:800; font-size:22px}
-.car-corpo span{font-size:16px; color:var(--tenue)}
 .lavagna-btn{background:var(--pozzo); font-family:var(--fd); font-stretch:85%; font-weight:800; font-size:18.5px; min-height:48px}
 .lavagna{position:fixed; inset:0; z-index:100; background:var(--acqua); display:flex; flex-direction:column;
   padding:calc(10px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px))}
@@ -573,7 +534,6 @@ input[type="date"].campo::-webkit-calendar-picker-indicator{opacity:.6}
   --bagliore:0 10px 26px -10px rgba(63,224,238,.55);
   --ombra:0 22px 44px -26px rgba(0,0,0,.85);
   --caustica-1:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iNTIwIiB2aWV3Qm94PSIwIDAgNTIwIDUyMCI+PGZpbHRlciBpZD0iZiIgeD0iMCIgeT0iMCIgd2lkdGg9IjUyMCIgaGVpZ2h0PSI1MjAiIGZpbHRlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC4wMTEgMC4wMTUiIG51bU9jdGF2ZXM9IjIiIHNlZWQ9IjciIHN0aXRjaFRpbGVzPSJzdGl0Y2giIHJlc3VsdD0ibiIvPjxmZUNvbG9yTWF0cml4IGluPSJuIiB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMCAwIDAgMCAxICAwIDAgMCAwIDEgIDAgMCAwIDAgMSAgMSAwIDAgMCAwIiByZXN1bHQ9ImEiLz48ZmVDb21wb25lbnRUcmFuc2ZlciBpbj0iYSI+PGZlRnVuY0EgdHlwZT0idGFibGUiIHRhYmxlVmFsdWVzPSIwIDAgMC4xMiAxIDAuMTIgMCAwIi8+PC9mZUNvbXBvbmVudFRyYW5zZmVyPjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjAuNyIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSI1MjAiIGhlaWdodD0iNTIwIiBmaWxsPSIjZmZmIiBmaWx0ZXI9InVybCgjZikiLz48L3N2Zz4=");
-  --caustica-2:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iNTIwIiB2aWV3Qm94PSIwIDAgNTIwIDUyMCI+PGZpbHRlciBpZD0iZiIgeD0iMCIgeT0iMCIgd2lkdGg9IjUyMCIgaGVpZ2h0PSI1MjAiIGZpbHRlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC4wMDggMC4wMTEiIG51bU9jdGF2ZXM9IjIiIHNlZWQ9IjIzIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIiByZXN1bHQ9Im4iLz48ZmVDb2xvck1hdHJpeCBpbj0ibiIgdHlwZT0ibWF0cml4IiB2YWx1ZXM9IjAgMCAwIDAgMSAgMCAwIDAgMCAxICAwIDAgMCAwIDEgIDEgMCAwIDAgMCIgcmVzdWx0PSJhIi8+PGZlQ29tcG9uZW50VHJhbnNmZXIgaW49ImEiPjxmZUZ1bmNBIHR5cGU9InRhYmxlIiB0YWJsZVZhbHVlcz0iMCAwIDAgMC44IDAgMCAwIi8+PC9mZUNvbXBvbmVudFRyYW5zZmVyPjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjEuMSIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSI1MjAiIGhlaWdodD0iNTIwIiBmaWxsPSIjZmZmIiBmaWx0ZXI9InVybCgjZikiLz48L3N2Zz4=");
   --fondo-alto:#0D5A72; --fondo-medio:#08394A; --fondo-basso:#031820; --base-vetro:#062834;
 }
 :root[data-theme="sole"], :root[data-theme="light"]{
@@ -591,19 +551,13 @@ input[type="date"].campo::-webkit-calendar-picker-indicator{opacity:.6}
 /* ---- l'acqua: fondo, luce che si muove, ombra verso il profondo ---- */
 html{background:var(--fondo-basso)}
 body{background:transparent; padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}
-body::before, body::after{content:""; position:fixed; left:-25%; right:-25%; top:-15vh; height:80vh; z-index:-1; pointer-events:none}
+body::before{content:""; position:fixed; left:-25%; right:-25%; top:-15vh; height:80vh; z-index:-1; pointer-events:none}
 body::before{
   background:var(--caustica-1) 0 0 / 470px, linear-gradient(180deg, var(--fondo-alto) 0%, var(--fondo-medio) 42%, var(--fondo-basso) 100%);
   background-blend-mode:soft-light, normal;
   -webkit-mask-image:linear-gradient(180deg, #000 55%, transparent 100%); mask-image:linear-gradient(180deg, #000 55%, transparent 100%);
-  animation:luce-1 38s linear infinite alternate}
-body::after{
-  background:var(--caustica-2) 0 0 / 640px; opacity:.16; mix-blend-mode:screen;
-  -webkit-mask-image:linear-gradient(180deg, #000 30%, transparent 85%); mask-image:linear-gradient(180deg, #000 30%, transparent 85%);
-  animation:luce-2 46s linear infinite alternate}
-:where(:root[data-theme="sole"],:root[data-theme="light"]) body::after{opacity:.55; mix-blend-mode:soft-light}
+  animation:luce-1 64s linear infinite alternate}
 @keyframes luce-1{from{transform:translate3d(0,0,0)} to{transform:translate3d(-90px,40px,0)}}
-@keyframes luce-2{from{transform:translate3d(0,0,0)} to{transform:translate3d(110px,-30px,0)}}
 
 /* ---- intestazione di vetro: la luce si vede attraverso ---- */
 .testa{background:linear-gradient(180deg, rgba(3,24,32,.55), rgba(3,24,32,.28)); -webkit-backdrop-filter:blur(16px) saturate(150%); backdrop-filter:blur(16px) saturate(150%);
@@ -717,7 +671,6 @@ body::after{
 .lavagna{background:linear-gradient(180deg, rgba(2,20,27,.30), rgba(2,14,19,.72)), var(--caustica-1) 0 0 / 520px, linear-gradient(180deg, #0A4A5E 0%, #052B37 45%, #021118 100%); background-blend-mode:normal, soft-light, normal}
 :where(:root[data-theme="sole"],:root[data-theme="light"]) .lavagna{background:var(--caustica-1) 0 0 / 520px, linear-gradient(180deg, #9BE2EE, #E3F4F6 55%); background-blend-mode:soft-light, normal}
 
-@media (prefers-reduced-motion:reduce){ body::before, body::after{animation:none} }
 /* ---------- presenze ---------- */
 body.in-pres #gruppi{display:none}
 .pr-riga{display:flex; align-items:center; gap:10px; padding:7px 0; border-top:1px solid var(--linea2)}
@@ -765,7 +718,7 @@ input,select,textarea,.campo,textarea.campo.diario{font-size:16px}
 .con-pillola > button[aria-pressed="true"]{background:transparent !important; box-shadow:none !important}
 .gruppi.con-pillola > button[aria-pressed="true"], .seg.con-pillola > button[aria-pressed="true"]{color:var(--testo-cloro)}
 .navbar-in.con-pillola > button[aria-pressed="true"]::before{content:none}
-.pillola{position:absolute; top:0; left:0; z-index:0; border-radius:8px; pointer-events:none; will-change:transform, width;
+.pillola{position:absolute; top:0; left:0; z-index:0; border-radius:8px; pointer-events:none; will-change:transform; transform-origin:0 50%;
   background:linear-gradient(135deg, var(--cloro), var(--cloro2)); box-shadow:var(--bagliore); transition:opacity .15s}
 .navbar-in .pillola{border-radius:16px; background:linear-gradient(135deg, rgba(63,224,238,.30), rgba(27,164,222,.20));
   box-shadow:inset 0 0 0 1px rgba(63,224,238,.35), 0 6px 16px -8px rgba(63,224,238,.6)}
@@ -804,7 +757,6 @@ input,select,textarea,.campo,textarea.campo.diario{font-size:16px}
 .interr[aria-checked="true"]::after{transform:translateX(21px); background:#fff}
 .interr[disabled]{opacity:.4; cursor:default}
 /* animazioni ridotte, scelte dalle impostazioni */
-body.calmo *, body.calmo *::before, body.calmo *::after{animation:none !important; transition:none !important}
 /* caratteri del tema "Classico" serviti dal sito stesso: nessuna richiesta a Google al primo avvio */
 @font-face{font-family:'Figtree'; font-style:normal; font-weight:400 800; font-display:swap; src:url(fonts/figtree-latin.woff2) format('woff2');
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -860,8 +812,6 @@ button.pr-nome:disabled{cursor:default}
 
 /* --- righe segnaposto: stessa altezza delle atlete, un solo movimento lento --- */
 .pr-sk{pointer-events:none}
-.sk-r, .sk-b, .pr-riepilogo-sk i{display:block; border-radius:6px; background:linear-gradient(90deg, rgba(255,255,255,.07), rgba(255,255,255,.16), rgba(255,255,255,.07)); background-size:200% 100%; animation:sk 1.4s ease-in-out infinite}
-:where(:root[data-theme="sole"],:root[data-theme="light"]) :is(.sk-r,.sk-b,.pr-riepilogo-sk i){background-image:linear-gradient(90deg, rgba(6,37,48,.06), rgba(6,37,48,.13), rgba(6,37,48,.06))}
 .pr-sk .pr-nome{flex:1; display:grid; gap:7px; padding:6px 0}
 .sk-r{height:14px; width:62%} .sk-r.corto{height:11px; width:34%}
 .sk-b{width:52px; height:46px; border-radius:12px}
@@ -870,7 +820,6 @@ button.pr-nome:disabled{cursor:default}
 .vuoto-seduta.in-arrivo{display:grid; gap:9px; justify-items:center; padding:24px 3px 20px}
 .vuoto-seduta.in-arrivo .sk-r{width:70%}
 .vuoto-seduta.in-arrivo .sk-r.corto{width:45%}
-@keyframes sk{from{background-position:200% 0} to{background-position:-200% 0}}
 /* --- Presenze: comandi in una barra fissa in basso (zona del pollice) --- */
 .pr-barra{position:fixed; left:10px; right:10px; bottom:calc(var(--base-nav, 70px) + 8px); z-index:45; padding:10px 12px 12px;
   border-radius:20px; background:var(--base-vetro); border:1px solid var(--vetro-bordo); box-shadow:0 14px 30px -14px rgba(0,0,0,.7);
@@ -888,6 +837,73 @@ body.in-pres .toast{bottom:calc(var(--base-nav, 70px) + var(--alt-barra, 0px) + 
 .pr-barra{padding:0 10px 10px; gap:6px; overflow:hidden}
 #pr-barra-corpo{gap:6px}
 .pr-barra .pr-avanz{height:5px; margin:0 -10px; border-radius:0; background:rgba(0,0,0,.28)}
+/* =====================================================================
+   SISTEMA DI MOVIMENTO
+   Carattere: rapido e preciso. L'acqua si muove piano e non si nota; l'interfaccia risponde subito.
+   Ogni movimento dice qualcosa: toccato, cambiato, arrivato, in attesa. Il resto sta fermo.
+   Durate: 120 tocco | 200 stato e dissolvenze | 320 spostamento di un indicatore o di un pannello
+   Curve:  esce-fuori (entrate e spostamenti) | entra-dentro (uscite) | stato (cambio di colore)
+   Budget: un solo movimento continuo sempre attivo (la luce sul fondo); in attesa al massimo uno in più.
+   ===================================================================== */
+:root{
+  --d-1:120ms; --d-2:200ms; --d-3:320ms;
+  --e-fuori:cubic-bezier(.2,.8,.2,1);      /* entrate e spostamenti: partono veloci, si posano piano */
+  --e-dentro:cubic-bezier(.4,0,1,1);       /* uscite: partono piano, spariscono veloci */
+  --e-stato:cubic-bezier(.4,0,.2,1);       /* cambi di colore e di stato */
+}
+
+/* ---- interattivi: tutti con le stesse durate e le stesse curve ---- */
+.btn, .chip, .giorno-btn, .freccia, .tondo, .seg button, .gruppi button, .pr-b, .pr-nome, .navbar button, .gara-chip, .voce, .giorni-sett button{
+  transition-property:transform, background-color, border-color, color, box-shadow, opacity;
+  transition-duration:var(--d-1), var(--d-2), var(--d-2), var(--d-2), var(--d-2), var(--d-2);
+  transition-timing-function:var(--e-fuori), var(--e-stato), var(--e-stato), var(--e-stato), var(--e-stato), var(--e-stato)}
+.navbar button svg, .interr::after{transition:transform var(--d-2) var(--e-fuori)}
+.interr{transition:background-color var(--d-2) var(--e-stato), border-color var(--d-2) var(--e-stato)}
+/* pressione: lo stesso gesto ovunque */
+.btn:active, .chip:active, .giorno-btn:active, .freccia:active, .tondo:active, .pr-b:active, .seg button:active, .gruppi button:active{transform:scale(.96)}
+.primario:active{transform:scale(.985)}
+.pr-b.no[aria-pressed="true"], .pr-b.ok[aria-pressed="true"]{transition-duration:var(--d-1), var(--d-2), var(--d-2), var(--d-2), var(--d-2), var(--d-2)}
+
+/* ---- la luce sul fondo: uno strato solo, lento; si ferma mentre scorri ---- */
+body::before{will-change:transform}
+body.scorre::before{animation-play-state:paused}
+.testa{-webkit-backdrop-filter:blur(10px) saturate(140%); backdrop-filter:blur(10px) saturate(140%)}
+.navbar{-webkit-backdrop-filter:blur(12px) saturate(140%); backdrop-filter:blur(12px) saturate(140%)}
+
+/* ---- caricamento: un solo respiro sul contenitore (opacità), non trenta sfumature che scorrono ---- */
+.sk-r, .sk-b, .pr-riepilogo-sk i{display:block; border-radius:6px; background:rgba(255,255,255,.12)}
+:where(:root[data-theme="sole"],:root[data-theme="light"]) :is(.sk-r,.sk-b,.pr-riepilogo-sk i){background:rgba(6,37,48,.1)}
+.pr-sk, .pr-riepilogo-sk, .vuoto-seduta.in-arrivo{animation:respiro 1.6s var(--e-stato) infinite}
+@keyframes respiro{50%{opacity:.5}}
+.pr-avanz i{transition:width var(--d-3) var(--e-fuori)}
+
+/* ---- apparizioni e uscite ---- */
+.vista.attiva{animation:appare var(--d-2) var(--e-fuori)}
+.foglio-fondo{animation:sfuma var(--d-2) var(--e-fuori)}
+.foglio-corpo{animation:sale var(--d-3) var(--e-fuori)}
+.toast.via{animation:toastin var(--d-2) var(--e-fuori)}
+.foglio.chiude .foglio-fondo{opacity:0; transition:opacity var(--d-1) var(--e-dentro)}
+.foglio.chiude .foglio-corpo{opacity:0; transform:translateY(16px); transition:opacity var(--d-1) var(--e-dentro), transform var(--d-1) var(--e-dentro)}
+.toast.esce{opacity:0; transform:translateY(6px); transition:opacity var(--d-1) var(--e-dentro), transform var(--d-1) var(--e-dentro)}
+
+/* ---- movimento ridotto: si sostituisce, non si spegne.
+   Niente spostamenti, scorrimenti e cicli; restano le dissolvenze e i cambi di colore, che dicono cosa è successo ---- */
+@media (prefers-reduced-motion:reduce){
+  body::before{animation:none}
+  .pr-sk, .pr-riepilogo-sk, .vuoto-seduta.in-arrivo, .gara-chip.att i, .stato-sync.lav i, .voce.nuova{animation:none}
+  .vista.attiva, .foglio-fondo, .foglio-corpo, .toast.via{animation:appare var(--d-1) linear}
+  .btn:active, .chip:active, .giorno-btn:active, .freccia:active, .tondo:active, .pr-b:active, .seg button:active, .gruppi button:active, .primario:active{transform:none}
+  .navbar button[aria-pressed="true"] svg, .interr::after, .toast.esce, .foglio.chiude .foglio-corpo{transform:none}
+  .navbar button svg, .interr::after{transition:none}
+  .pr-avanz i{transition:none}
+  .gara-chip.att i, .stato-sync.lav i{box-shadow:0 0 0 3px color-mix(in srgb, var(--en2) 40%, transparent)}   /* in attesa: un anello fisso al posto del battito */
+}
+body.calmo::before{animation:none}
+body.calmo :is(.pr-sk, .pr-riepilogo-sk, .vuoto-seduta.in-arrivo, .gara-chip.att i, .stato-sync.lav i, .voce.nuova){animation:none}
+body.calmo :is(.vista.attiva, .foglio-fondo, .foglio-corpo, .toast.via){animation:appare var(--d-1) linear}
+body.calmo :is(.btn, .chip, .giorno-btn, .freccia, .tondo, .pr-b, .seg button, .gruppi button, .primario):active{transform:none}
+body.calmo :is(.navbar button svg, .interr::after, .toast.esce, .foglio.chiude .foglio-corpo){transform:none; transition:none}
+body.calmo .pr-avanz i{transition:none}
 </style>
 </head>
 <body>
@@ -1651,13 +1667,24 @@ const vibra = ms => { if (pref.vibra === false) return; try { if (navigator.vibr
 /* ================= foglio, conferme, toast ================= */
 function apriFoglio(costruisci){
   const f = $("#foglio"), c = $("#foglio-corpo");
+  clearTimeout(chiusuraFoglio); f.classList.remove("chiude");
   c.innerHTML = "";
   costruisci(c);
   f.hidden = false;
   document.body.style.overflow = "hidden";
   setTimeout(() => { const x = c.querySelector("[data-fuoco]"); if (x) x.focus(); }, 60);
 }
-function chiudiFoglio(){ $("#foglio").hidden = true; document.body.style.overflow = ""; }
+/* la finestra esce in 120 ms (dissolvenza e un piccolo calo), poi sparisce; con movimento ridotto sparisce subito */
+let chiusuraFoglio = null;
+function chiudiFoglio(){
+  const f = $("#foglio");
+  document.body.style.overflow = "";
+  if (f.hidden) return;
+  if (menoMoto() || document.body.classList.contains("calmo")){ f.hidden = true; return; }
+  f.classList.add("chiude");
+  clearTimeout(chiusuraFoglio);
+  chiusuraFoglio = setTimeout(() => { f.hidden = true; f.classList.remove("chiude"); }, 130);
+}
 $("#foglio-fondo").addEventListener("click", chiudiFoglio);
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
@@ -1690,10 +1717,21 @@ function toast(msg, annulla){
   const t = $("#toast");
   t.innerHTML = "";
   t.append(el("span", null, msg));
-  if (annulla) t.append(el("button", {onclick:() => { annulla(); t.hidden = true; }}, "Annulla"));
+  if (annulla) t.append(el("button", {onclick:() => { annulla(); nascondiToast(); }}, "Annulla"));
+  clearTimeout(toastTimer); clearTimeout(uscitaToast);
+  t.classList.remove("esce");
   t.hidden = false; t.classList.remove("via"); void t.offsetWidth; t.classList.add("via");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { t.hidden = true; }, annulla ? 5500 : 2600);
+  toastTimer = setTimeout(nascondiToast, annulla ? 5500 : 2600);
+}
+/* l'avviso esce in 120 ms invece di sparire di colpo */
+let uscitaToast = null;
+function nascondiToast(){
+  const t = $("#toast");
+  clearTimeout(toastTimer); clearTimeout(uscitaToast);
+  if (t.hidden) return;
+  if (menoMoto() || document.body.classList.contains("calmo")){ t.hidden = true; return; }
+  t.classList.add("esce");
+  uscitaToast = setTimeout(() => { t.hidden = true; t.classList.remove("esce"); }, 130);
 }
 function copiaTesto(testo){
   return new Promise(ok => {
@@ -2306,7 +2344,7 @@ function contaSu(nodo, a){
   const da = +(nodo.dataset.v || 0);
   nodo.dataset.v = a;
   if (menoMoto() || da === a){ nodo.textContent = fmt(a); return; }
-  const t0 = performance.now(), dur = 700;
+  const t0 = performance.now(), dur = 450;
   const passo = t => {
     const k = clamp((t - t0) / dur, 0, 1), e = 1 - Math.pow(1 - k, 3);
     nodo.textContent = fmt(da + (a - da) * e);
@@ -3277,7 +3315,37 @@ function presModifica(nomeScheda, data, patch, senzaDisegno){
   presApplicaLocale(r.sc, g, {a:patch.a, n:patch.n, cambi:patch.cambi});
   presSalvaCoda(); Mem.scrivi(K.pres, pres);
   presPianifica();
-  if (senzaDisegno) aggiornaPresStato(); else renderPresenze();
+  if (senzaDisegno) aggiornaPresStato(); else if (!presAggiornaSul(nomeScheda, data)) renderPresenze();
+}
+/* Aggiorna le righe già a schermo invece di ricostruirle: il pulsante toccato resta lo stesso elemento,
+   quindi il cambio di colore si anima, il focus non si perde e il dito non "perde" il bersaglio.
+   Restituisce false se non può (altra schermata, altra scheda, elenco diverso): allora si ridisegna tutto. */
+function presAggiornaSul(nomeScheda, data){
+  if (vista !== "v-presenze" || nomeScheda !== presSel.g || data !== presSel.d) return false;
+  const r = presMap[nomeScheda], g = r && r.m[data], lista = $("#pr-corpo .pr-lista");
+  if (!g || !lista || lista.children.length !== r.sc.atleti.length || !$("#pr-barra-corpo .pr-avanz")) return false;
+  const sc = r.sc, conti = presConti(sc), tot = conti.fatti;
+  let np = 0, na = 0;
+  sc.atleti.forEach((brutto, i) => {
+    const riga = lista.children[i], codice = g.s[i], q = presNome(brutto);
+    if (codice === "1") np++; else if (codice === "2") na++;
+    riga.classList.toggle("da-segnare", codice === "0");
+    riga.querySelector(".pr-b.ok").setAttribute("aria-pressed", String(codice === "1"));
+    riga.querySelector(".pr-b.no").setAttribute("aria-pressed", String(codice === "2"));
+    const nome = riga.querySelector(".pr-nome");
+    nome.setAttribute("aria-label", (codice === "0" ? "Da segnare, " : "") + "segna presente: " + q.nome);
+    const sotto = nome.querySelector("small");
+    if (sotto) sotto.replaceChildren(q.cat ? q.cat + (tot ? " · " : "") : "", ...(tot ? [conti.p[i] + "/" + tot + " · ", el("span", {class:"pr-pct"}, pct(conti.p[i], tot) + "%")] : []));
+  });
+  // conteggi in alto e barra di avanzamento (la barra si allunga dalle misure di prima)
+  const riep = presRiepilogo(sc.nome + "|" + data, np, na, sc.atleti.length);
+  $("#pr-conti-top").replaceChildren(riep.querySelector(".pr-conti"));
+  $("#pr-barra-corpo .pr-avanz").replaceWith(riep.querySelector(".pr-avanz"));
+  // la barretta del giorno nella striscia
+  const gg = $("#pr-striscia .giorno-btn[aria-pressed='true'] .gm");
+  if (gg){ gg.replaceChildren(...(g.a === "1" ? [el("i", {style:"width:100%;background:var(--ok)"})] : [])); }
+  aggiornaPresStato();
+  return true;
 }
 function presPianifica(ms){
   clearTimeout(presTimer);
@@ -3442,7 +3510,7 @@ function renderPresenze(){
     const sotto = el("small", null, q.cat ? q.cat + (tot ? " · " : "") : "",
       tot ? [conti.p[i] + "/" + tot + " · ", el("span", {class:"pr-pct"}, pct(conti.p[i], tot) + "%")] : "");
     const tocca = nuovo => {
-      const patch = {cambi:{[brutto]:codice === nuovo ? "0" : nuovo}};
+      const patch = {cambi:{[brutto]:g.s[i] === nuovo ? "0" : nuovo}};
       // niente scelta dell'allenamento: se segni qualcuna l'allenamento c'è; se togli l'ultima segnatura, torna a non esserci
       if (g.a !== "1") patch.a = "1";
       const resto = g.s.split("").some((v, j) => j !== i && v !== "0");
@@ -3568,23 +3636,28 @@ programmaPoll();
   misura();
 })();
 </script>
-<script src="vendor/motion.js" defer></script>
 <script>
-/* ================= movimento: pochi gesti, tutti in risposta a un tocco ================= */
+/* ================= movimento ================= */
 window.addEventListener("load", () => {
-  const M = window.Motion;
   const riduci = () => document.body.classList.contains("calmo") || matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // altezza della testata: serve al riepilogo delle presenze per fermarsi subito sotto
+  // altezza della testata
   const testa = document.querySelector(".testa");
   const altezza = () => document.documentElement.style.setProperty("--alt-testa", testa.offsetHeight + "px");
   new ResizeObserver(altezza).observe(testa); altezza();
 
-  // indicatore che scorre sotto la scelta attiva
+  /* la luce sul fondo si ferma mentre scorri: meno lavoro per il telefono proprio quando serve fluidità */
+  let fermaLuce = 0;
+  window.addEventListener("scroll", () => {
+    document.body.classList.add("scorre");
+    clearTimeout(fermaLuce); fermaLuce = setTimeout(() => document.body.classList.remove("scorre"), 160);
+  }, {passive:true});
+
+  /* indicatore che scorre sotto la scelta attiva.
+     Si anima solo transform (spostamento e scala orizzontale), mai width: niente ricalcolo del layout ad ogni fotogramma. */
   const SEL = ".navbar-in, .gruppi, .seg";
   const ultimo = new WeakMap();
-  // la barra in basso: l'indicatore abbraccia icona e scritta, centrato nel pulsante, con 4px di aria per lato
-  const MARGINE_NAV = {x:4, y:3};
+  const MARGINE_NAV = {x:4, y:3};   // nella barra in basso l'indicatore abbraccia icona e scritta, centrato nel pulsante
   function posiziona(c){
     const b = c.querySelector(":scope > button[aria-pressed='true']");
     let p = c.querySelector(":scope > .pillola");
@@ -3595,29 +3668,30 @@ window.addEventListener("load", () => {
     const x = b.offsetLeft + mx, y = b.offsetTop + my, w = b.offsetWidth - 2 * mx, h = b.offsetHeight - 2 * my;
     const nuova = !p;
     if (nuova){ p = document.createElement("span"); p.className = "pillola"; p.setAttribute("aria-hidden", "true"); c.prepend(p); }
-    p.style.opacity = "1"; p.style.top = y + "px"; p.style.height = h + "px";
     const meta = ultimo.get(c);
     ultimo.set(c, {x, w});
     if (meta && meta.x === x && meta.w === w && !nuova) return;
-    // si parte da dove l'indicatore si trova davvero (anche a metà di uno scorrimento), non da dove doveva arrivare
+    // si parte da dove l'indicatore si trova davvero (anche a metà di uno scorrimento)
     let da = null;
     if (!nuova && p.offsetWidth){
       const rp = p.getBoundingClientRect(), rc = c.getBoundingClientRect();
       const s = rc.width / c.offsetWidth || 1;   // con il testo ingrandito le misure a schermo sono scalate
       da = {x:(rp.left - rc.left) / s - c.clientLeft, w:rp.width / s};
     } else if (meta) da = meta;
-    if (!M || riduci() || !da || (Math.abs(da.x - x) < .5 && Math.abs(da.w - w) < .5)){
-      p.style.width = w + "px"; p.style.transform = "translateX(" + x + "px)"; return;
-    }
-    M.animate(p, {x:[da.x, x], width:[da.w + "px", w + "px"]}, {duration:.42, ease:[.32, .72, 0, 1]});
+    if (p.getAnimations) p.getAnimations().forEach(a => a.cancel());
+    p.style.opacity = "1"; p.style.top = y + "px"; p.style.height = h + "px"; p.style.width = w + "px";
+    p.style.transform = "translateX(" + x + "px)";
+    if (!p.animate || riduci() || !da || (Math.abs(da.x - x) < .5 && Math.abs(da.w - w) < .5)) return;
+    p.animate([{transform:"translateX(" + da.x + "px) scaleX(" + (da.w / w) + ")"}, {transform:"translateX(" + x + "px) scaleX(1)"}],
+      {duration:320, easing:"cubic-bezier(.2,.8,.2,1)"});
   }
   let rq = 0;
   const tutte = () => { rq = 0; document.querySelectorAll(SEL).forEach(posiziona); };
   const pianifica = () => { if (!rq) rq = requestAnimationFrame(tutte); };
-  new MutationObserver(m => {
-    // i numeri che contano non contano: solo scelte, classi e nodi interi
-    if (m.some(x => x.type === "attributes" || [...x.addedNodes, ...x.removedNodes].some(n => n.nodeType === 1))) pianifica();
-  }).observe(document.body, {subtree:true, childList:true, attributes:true, attributeFilter:["aria-pressed", "class", "hidden"]});
+  // si osservano solo i contenitori delle scelte e le schermate: un aggiornamento dell'elenco atlete non fa rimisurare niente
+  const oss = new MutationObserver(pianifica);
+  document.querySelectorAll(SEL).forEach(c => oss.observe(c, {subtree:true, childList:true, attributes:true, attributeFilter:["aria-pressed"]}));
+  document.querySelectorAll(".vista").forEach(v => oss.observe(v, {attributes:true, attributeFilter:["class"]}));
   window.addEventListener("resize", pianifica);
   tutte();
   // i caratteri arrivano dopo: le misure dei pulsanti cambiano, l'indicatore si rimette a posto
