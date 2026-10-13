@@ -608,6 +608,14 @@ body::before{
 .voce .zbar{width:6px; border-radius:4px; box-shadow:0 0 12px -1px var(--c)}
 .voce .desc b{letter-spacing:-.01em}
 .voce .mt{color:var(--gesso)}
+/* serie tenuta premuta e trascinata */
+.voce[data-id]{-webkit-touch-callout:none; -webkit-user-select:none; user-select:none}
+#elenco.riordino{touch-action:none}
+#elenco > li.in-presa{position:relative; z-index:4; border-radius:12px; background:var(--base-vetro);
+  box-shadow:0 16px 30px -14px rgba(0,0,0,.75), 0 0 0 1.5px color-mix(in srgb, var(--en1) 55%, transparent); transform-origin:50% 50%}
+#elenco > li.in-presa .voce, #elenco > li.in-presa + li .voce{border-top-color:transparent}
+#elenco.riordino > li:not(.in-presa){transition:opacity .2s}
+#elenco.riordino > li:not(.in-presa):not(.blocco-testa){opacity:.75}
 
 /* ---- pulsanti ---- */
 .btn{background:rgba(255,255,255,.045); border-color:var(--vetro-bordo); transition:transform .12s, background .2s, box-shadow .2s}
@@ -1651,6 +1659,7 @@ let bozzaBase = JSON.parse(JSON.stringify(BOZZA0));
 let statoF = 1;
 let inModifica = null;
 let inserimento = null;   // {id, dopo}: dove va la prossima serie; vuoto = in fondo
+let riordinoAttivo = false;   // una serie è tenuta premuta e si sta spostando: niente ridisegni da fuori
 let ultimaAggiunta = null;
 const vibra = ms => { if (pref.vibra === false) return; try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e){} };
 
@@ -2043,12 +2052,14 @@ function renderElenco(anima){
       : el("li", {class:"vuoto-seduta"}, "Nessuna seduta in questo giorno"));
   }
   const marcatore = () => el("li", {class:"inserisci-qui"}, el("span", null, "Qui la prossima serie"), el("button", {class:"btn piccolo", onclick:() => fineInserimento()}, "Fine"));
-  gruppiBlocchi(lista).forEach(gr => {
-    ul.append(el("li", {class:"blocco-testa"}, el("span", null, nomeBlocco(gr.b, true)), el("span", {class:"num"}, fmt(totale(gr.l)) + " m")));
+  const blocchi = gruppiBlocchi(lista);
+  ul._blocchi = blocchi;   // per il trascinamento: a quale blocco appartiene ogni intestazione
+  blocchi.forEach((gr, gi) => {
+    ul.append(el("li", {class:"blocco-testa", "data-gi":gi}, el("span", null, nomeBlocco(gr.b, true)), el("span", {class:"num"}, fmt(totale(gr.l)) + " m")));
     gr.l.forEach(s => {
       const det = dettaglio(s);
       if (inserimento && inserimento.id === s.id && inserimento.dopo === false) ul.append(marcatore());
-      ul.append(el("li", null, el("button", {class:"voce" + (anima && s.id === ultimaAggiunta ? " nuova" : ""), style:"--c:" + colore(s.s),
+      ul.append(el("li", null, el("button", {class:"voce" + (anima && s.id === ultimaAggiunta ? " nuova" : ""), style:"--c:" + colore(s.s), "data-id":s.id,
         onclick:() => azioniSerie(s)},
         el("span", {class:"zbar", style:"background:" + colore(s.s)}),
         el("span", {class:"desc"}, el("b", null, descr(s)), det ? el("small", null, det) : null),
@@ -2130,6 +2141,99 @@ function sposta(s, verso){
   s.ts = Date.now(); tutte[j].ts = Date.now();
   salva.serie(); renderSeduta();
 }
+
+/* ---------- tieni premuta una serie e trascinala dove vuoi ----------
+   Pressione lunga (in modalità scrittura): la serie si solleva e segue il dito; le altre si scostano.
+   Lasciata sotto un'altra intestazione, la serie passa a quel blocco. Un tocco breve apre il menu come prima. */
+(() => {
+  const ul = $("#elenco");
+  const PRESSIONE = 380, SOGLIA = 9;
+  const piano = () => document.body.classList.contains("calmo") || menoMoto();
+  let t = null, sopprimiClick = false;
+
+  function ferma(){
+    if (!t) return;
+    clearTimeout(t.timer); cancelAnimationFrame(t.raf);
+    if (t.attivo){ t.li.classList.remove("in-presa"); t.li.style.transform = ""; ul.classList.remove("riordino"); }
+    t = null; riordinoAttivo = false;
+  }
+  function inizia(){
+    if (!t || !t.li.isConnected){ ferma(); return; }
+    t.attivo = true; riordinoAttivo = true;
+    const r = t.li.getBoundingClientRect();
+    t.presa = t.y0 - r.top;
+    t.li.classList.add("in-presa"); ul.classList.add("riordino");
+    vibra(15);
+    sposta1();
+    t.raf = requestAnimationFrame(bordo);
+  }
+  // la serie segue il dito; quando il suo centro supera quello di un'altra riga, si cambia posto
+  function sposta1(){
+    const li = t.li, h = li.offsetHeight;
+    const scosto = (parseFloat((li.style.transform.match(/translateY\(([-\d.]+)px/) || [])[1]) || 0);
+    const k = li.getBoundingClientRect().top - scosto - li.offsetTop;     // da coordinate dello schermo a quelle della lista
+    const cima = t.y - t.presa - k, centro = cima + h / 2;
+    const altre = [...ul.children].filter(x => x !== li);
+    let dopo = altre.find(x => x.offsetTop + x.offsetHeight / 2 > centro) || null;
+    if (dopo === altre[0] && dopo.classList.contains("blocco-testa")) dopo = altre[1] || null;   // mai sopra la prima intestazione
+    if (li.nextElementSibling !== dopo){
+      const prima = new Map(altre.map(x => [x, x.offsetTop]));
+      ul.insertBefore(li, dopo);
+      if (!piano()) altre.forEach(x => {
+        const d = prima.get(x) - x.offsetTop;
+        if (d) x.animate([{transform:"translateY(" + d + "px)"}, {transform:"none"}], {duration:200, easing:"cubic-bezier(.2,.8,.2,1)"});
+      });
+      vibra(6);
+    }
+    li.style.transform = "translateY(" + (cima - li.offsetTop) + "px)" + (piano() ? "" : " scale(1.02)");
+  }
+  // vicino ai bordi dello schermo la pagina scorre da sola, per le sedute lunghe
+  function bordo(){
+    if (!t || !t.attivo) return;
+    const nav = $(".navbar"), giu = nav ? nav.getBoundingClientRect().top - 40 : innerHeight - 100;
+    const su = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--alt-testa")) || 56) + 50;
+    const v = t.y < su ? -Math.ceil((su - t.y) / 6) : t.y > giu ? Math.ceil((t.y - giu) / 6) : 0;
+    if (v){ scrollBy(0, v); sposta1(); }
+    t.raf = requestAnimationFrame(bordo);
+  }
+  function lascia(){
+    const li = t.li;
+    ferma();
+    sopprimiClick = true; setTimeout(() => { sopprimiClick = false; }, 350);
+    const prima = serieGiorno(dataSel).map(s => ({s, o:s.o, b:s.b}));
+    let b, k = 0, cambiato = false;
+    [...ul.children].forEach(x => {
+      if (x.classList.contains("blocco-testa")){ const gr = (ul._blocchi || [])[+x.dataset.gi]; if (gr) b = gr.b; return; }
+      const v = x.querySelector(".voce[data-id]"); if (!v) return;
+      const s = serie.find(y => String(y.id) === v.dataset.id); if (!s) return;
+      const o = ++k * 10, nb = x === li && b !== undefined ? b : s.b;
+      if (s.o !== o || s.b !== nb){ s.o = o; s.b = nb; s.ts = Date.now(); cambiato = true; }
+    });
+    if (!cambiato){ renderSeduta(); return; }
+    salva.serie(); renderSeduta();
+    toast("Serie spostata", () => { prima.forEach(p => { p.s.o = p.o; p.s.b = p.b; p.s.ts = Date.now(); }); salva.serie(); renderSeduta(); });
+  }
+
+  ul.addEventListener("pointerdown", e => {
+    const b = e.target.closest(".voce[data-id]");
+    if (!b || soloLettura() || t || (e.pointerType === "mouse" && e.button !== 0)) return;
+    t = {li:b.parentElement, y0:e.clientY, x0:e.clientX, y:e.clientY, attivo:false};
+    t.timer = setTimeout(inizia, PRESSIONE);
+  });
+  window.addEventListener("pointermove", e => {
+    if (!t) return;
+    if (!t.attivo){ if (Math.hypot(e.clientX - t.x0, e.clientY - t.y0) > SOGLIA) ferma(); return; }   // stava scorrendo la pagina
+    t.y = e.clientY; sposta1();
+  });
+  window.addEventListener("pointerup", () => { if (t && t.attivo) lascia(); else ferma(); });
+  window.addEventListener("pointercancel", () => { if (t && t.attivo) lascia(); else ferma(); });
+  // mentre si trascina il dito non deve far scorrere la pagina
+  document.addEventListener("touchmove", e => { if (t && t.attivo) e.preventDefault(); }, {passive:false});
+  // dopo il trascinamento il tocco non apre il menu della serie
+  ul.addEventListener("click", e => { if (sopprimiClick){ e.stopPropagation(); e.preventDefault(); } }, true);
+  // niente menu del browser sulla pressione lunga
+  ul.addEventListener("contextmenu", e => { if (e.target.closest(".voce[data-id]") && !soloLettura()) e.preventDefault(); });
+})();
 
 /* ---------- incolla, condividi, modelli, duplica ---------- */
 $("#apri-incolla").addEventListener("click", () => {
@@ -2995,7 +3099,7 @@ function applicaVoci(voci){
 /* niente schermata di caricamento: mentre si collega o aggiorna lo dice solo lo stato del foglio in alto */
 function mostraCaricamento(){ aggiornaStatoFoglio(); }
 function nascondiCaricamento(){}
-const occupato = () => !$("#foglio").hidden || !$("#lavagna").hidden || !!inModifica;
+const occupato = () => !$("#foglio").hidden || !$("#lavagna").hidden || !!inModifica || riordinoAttivo;
 
 /* una sola operazione: manda le modifiche in coda e riceve le novità */
 async function sincronizza(o){
