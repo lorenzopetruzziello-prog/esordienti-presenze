@@ -741,6 +741,10 @@ input,select,textarea,.campo,textarea.campo.diario{font-size:16px}
 .pr-avanz{display:flex; height:7px; border-radius:4px; overflow:hidden; background:rgba(0,0,0,.22); margin-top:9px}
 :where(:root[data-theme="sole"],:root[data-theme="light"]) .pr-avanz{background:var(--pozzo)}
 .pr-avanz i{display:block; height:100%; transition:width .5s cubic-bezier(.2,.8,.2,1)}
+/* giorno passato bloccato: le righe si leggono ma sono spente finché non si tocca "Modifica questo giorno" */
+.pr-lista.bloccata .pr-sc{opacity:.45}
+.pr-lista.bloccata .pr-nome{opacity:.8}
+.pr-sblocca{width:100%; margin-top:12px}
 .pr-avanz i.ok{background:var(--ok)} .pr-avanz i.no{background:var(--gap)} .pr-avanz i.vuoto{background:transparent}
 .pr-conti .resta b{color:var(--en2)}
 .pr-nome{cursor:pointer; -webkit-user-select:none; user-select:none}
@@ -3354,6 +3358,7 @@ function presSeguiGruppo(){
 }
 let presStato = {caricando:false, invio:false, errore:"", ultimo:0, ack:0};
 let presTimer = null;
+let presSblocco = "";   // "SCHEDA|data" del giorno passato aperto con "Modifica questo giorno"
 const presSalvaCoda = () => Mem.scrivi(K.presCoda, presCoda);
 const presInAttesa = () => Object.keys(presCoda).length;
 
@@ -3589,6 +3594,12 @@ function renderPresenze(){
     return;
   }
 
+  // i giorni passati sono bloccati: si cambiano solo dopo "Modifica questo giorno" in fondo all'elenco,
+  // così un tocco per sbaglio scorrendo indietro non cambia le presenze già segnate
+  const chiaveGiorno = sc.nome + "|" + d, passato = d < og;
+  if (presSblocco && presSblocco !== chiaveGiorno) presSblocco = "";
+  const bloccato = passato && !ro && presSblocco !== chiaveGiorno;
+
   const conti = presConti(sc);
   let np = 0, na = 0;
   for (let i = 0; i < sc.atleti.length; i++){ if (g.s[i] === "1") np++; else if (g.s[i] === "2") na++; }
@@ -3596,12 +3607,13 @@ function renderPresenze(){
 
 
   /* atlete */
-  const lista = el("div", {class:"pr-lista"});
+  const lista = el("div", {class:"pr-lista" + (bloccato ? " bloccata" : "")});
   sc.atleti.forEach((brutto, i) => {
     const q = presNome(brutto), codice = g.s[i], tot = conti.fatti;
     const sotto = el("small", null, q.cat ? q.cat + (tot ? " · " : "") : "",
       tot ? [conti.p[i] + "/" + tot + " · ", el("span", {class:"pr-pct"}, pct(conti.p[i], tot) + "%")] : "");
     const tocca = nuovo => {
+      if (bloccato){ vibra(20); toast("Giorno passato: per cambiarlo tocca «Modifica questo giorno» in fondo"); return; }
       const patch = {cambi:{[brutto]:g.s[i] === nuovo ? "0" : nuovo}};
       // niente scelta dell'allenamento: se segni qualcuna l'allenamento c'è; se togli l'ultima segnatura, torna a non esserci
       if (g.a !== "1") patch.a = "1";
@@ -3619,7 +3631,7 @@ function renderPresenze(){
         el("button", {class:"pr-b ok", "aria-pressed":String(codice === "1"), "aria-label":"Presente: " + q.nome, disabled:ro, onclick:() => tocca("1")}, icona("i-ok")),
         el("button", {class:"pr-b no", "aria-pressed":String(codice === "2"), "aria-label":"Assente: " + q.nome, disabled:ro, onclick:() => tocca("2")}, icona("i-no")))));
   });
-  const tutte = el("button", {class:"btn piccolo solo-scrivo", disabled:ro, onclick:() => {
+  const tutte = el("button", {class:"btn piccolo solo-scrivo", disabled:ro || bloccato, onclick:() => {
     const cambi = {}; sc.atleti.forEach((n, i) => { if (g.s[i] === "0") cambi[n] = "1"; });
     if (!Object.keys(cambi).length && g.a === "1") { toast("Tutte già segnate"); return; }
     // l'azione cambia fino a 14 celle e parte subito per il foglio: si può annullare dal toast
@@ -3631,10 +3643,14 @@ function renderPresenze(){
   const comandi = el("div", {class:"pr-comandi"}, tutte);
   // riepilogo (fisso in alto mentre scorri), "Tutte presenti", poi l'elenco
   c.append(el("div", {class:"sez"},
-    el("div", {class:"pannello"}, presRiepilogo(sc.nome + "|" + d, np, na, sc.atleti.length), comandi, lista)));
+    el("div", {class:"pannello"}, presRiepilogo(sc.nome + "|" + d, np, na, sc.atleti.length), comandi, lista,
+      passato && !ro ? el("button", {class:"btn largo pr-sblocca" + (bloccato ? "" : " pieno"), onclick:() => {
+        presSblocco = bloccato ? chiaveGiorno : ""; vibra(8); renderPresenze();
+        if (bloccato) toast("Ora puoi cambiare le presenze del " + dataBreve(d));
+      }}, icona(bloccato ? "i-matita" : "i-lucchetto"), bloccato ? "Modifica questo giorno" : "Fine modifica") : null)));
 
   /* note */
-  const nota = el("textarea", {class:"campo diario", id:"pr-nota", rows:2, "aria-label":"Note della giornata", disabled:ro});
+  const nota = el("textarea", {class:"campo diario", id:"pr-nota", rows:2, "aria-label":"Note della giornata", disabled:ro || bloccato});
   nota.value = g.n || "";
   nota.addEventListener("change", () => { if (nota.value.trim() !== (g.n || "")) presModifica(sc.nome, d, {n:nota.value.trim()}, true); });
   c.append(el("div", {class:"sez"}, el("div", {class:"sez-testa"}, el("h2", null, "Note")), nota));
