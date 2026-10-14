@@ -9,10 +9,10 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Esordienti">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
-<link rel="shortcut icon" href="favicon.ico">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=2">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=2">
+<link rel="shortcut icon" href="favicon.ico?v=2">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=2">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -62,6 +62,7 @@ h1,h2,h3,p{margin:0}
 .testa{position:sticky; top:env(safe-area-inset-top,0px); z-index:40; background:var(--acqua);
   padding:8px 13px 8px; border-bottom:1px solid var(--linea2)}
 .testa-riga{display:flex; align-items:center; gap:8px; max-width:1180px; margin:0 auto}
+.marchio .logo{width:26px; height:26px; flex:none; display:block}
 .marchio{font-family:var(--fd); display:flex; align-items:center; gap:6.5px; font-stretch:80%; font-weight:800; font-size:17px; letter-spacing:-.01em}
 .marchio svg{width:24.5px; height:10px}
 .gara-chip{margin-left:auto; min-width:0; display:flex; align-items:center; gap:6.5px; border:1px solid var(--linea);
@@ -953,7 +954,7 @@ body.calmo .pr-avanz i{transition:none}
 <header class="testa">
   <div class="testa-riga">
     <div class="marchio" aria-label="Vasca Esordienti">
-      <svg viewBox="0 0 30 12" aria-hidden="true"><rect style="fill:var(--en1)" x="0" y="3" width="6" height="6" rx="3"/><rect style="fill:var(--en1)" x="8" y="3" width="6" height="6" rx="3"/><rect style="fill:var(--en2)" x="16" y="3" width="6" height="6" rx="3"/><rect style="fill:var(--sp)" x="24" y="3" width="6" height="6" rx="3"/></svg>
+      <img class="logo" src="icon-192.png" alt="" width="26" height="26">
       Vasca <span class="sotto-marchio">Esordienti</span>
     </div>
     <div class="testa-dx">
