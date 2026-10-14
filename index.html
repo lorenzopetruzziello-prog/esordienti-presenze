@@ -745,6 +745,8 @@ input,select,textarea,.campo,textarea.campo.diario{font-size:16px}
 .pr-lista.bloccata .pr-sc{opacity:.45}
 .pr-lista.bloccata .pr-nome{opacity:.8}
 .pr-sblocca{width:100%; margin-top:12px}
+/* con il tasto Annulla in alto, sui telefoni stretti la scritta "Esordienti" lascia spazio alla spia del foglio */
+@media (max-width:430px){ .testa:has(#annulla:not([hidden])) .sotto-marchio{display:none} }
 .pr-avanz i.ok{background:var(--ok)} .pr-avanz i.no{background:var(--gap)} .pr-avanz i.vuoto{background:transparent}
 .pr-conti .resta b{color:var(--en2)}
 .pr-nome{cursor:pointer; -webkit-user-select:none; user-select:none}
@@ -934,6 +936,7 @@ body.calmo .pr-avanz i{transition:none}
     <symbol id="i-spunta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
     <symbol id="i-testo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 6h14M5 10h14M5 14h9M5 18h6"/></symbol>
     <symbol id="i-cond" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></symbol>
+    <symbol id="i-annulla" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></symbol>
     <symbol id="i-bacchetta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20L15 9M14 4v3M19.5 9.5h-3M17.5 5.5l-2 2M18 3l1 1"/></symbol>
     <symbol id="i-obiettivo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8" fill="currentColor"/></symbol>
     <symbol id="i-lavagna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 20l2-4M17 20l-2-4M7 8h6M7 11h9"/></symbol>
@@ -956,6 +959,7 @@ body.calmo .pr-avanz i{transition:none}
     <div class="testa-dx">
       <button class="gara-chip" id="foglio-chip" hidden></button>
       <button class="tondo modo-tondo" id="modo-chip" hidden aria-label="Solo lettura: tocca per cambiare"><svg><use href="#i-lucchetto"/></svg></button>
+      <button class="tondo" id="annulla" hidden aria-label="Annulla l'ultima modifica" title="Annulla l'ultima modifica"><svg><use href="#i-annulla"/></svg></button>
       <button class="tondo" id="tema" aria-label="Passa al tema chiaro"><svg><use href="#i-sole"/></svg></button>
     </div>
   </div>
@@ -1383,8 +1387,62 @@ const tombaLista = (nome, id) => { tombe.liste[nome][id] = Date.now(); salva.tom
 let foglio = Object.assign({url:"", token:"", ultimo:"", caricato:"", legato:"", esito:"", errore:""}, Mem.leggi(K.foglio, {}));
 let coda = Object.assign({sedute:{}, altro:0}, Mem.leggi(K.coda, {}));
 if (coda.obiettivi){ coda.altro = coda.obiettivi; delete coda.obiettivi; }
+/* ================= annulla: torna indietro di un passo =================
+   Ogni modifica fatta da te (serie aggiunte, cambiate, spostate, eliminate; presenze e note delle presenze)
+   lascia un passo; il tasto "Annulla" in alto li disfa uno alla volta, dal più recente.
+   Il ripristino è a sua volta una modifica normale: arriva al foglio come tutte le altre. */
+const storia = [];
+let fotoSerie = new Map(), inAnnulla = false;
+const copiaJ = x => JSON.parse(JSON.stringify(x));
+function fotografaSerie(){ fotoSerie = new Map(serie.map(s => [s.id, copiaJ(s)])); }
+function registraPasso(p){ if (inAnnulla) return; storia.push(p); if (storia.length > 50) storia.shift(); aggiornaAnnulla(); }
+function passoSerie(){
+  const prima = [], aggiunte = [], viste = new Set();
+  serie.forEach(s => {
+    viste.add(s.id);
+    const v = fotoSerie.get(s.id);
+    if (!v) aggiunte.push(s.id); else if (JSON.stringify(v) !== JSON.stringify(s)) prima.push(v);
+  });
+  fotoSerie.forEach((v, id) => { if (!viste.has(id)) prima.push(v); });
+  if (!prima.length && !aggiunte.length) return;
+  const rif = prima[0] || serie.find(s => s.id === aggiunte[0]);
+  fotografaSerie();
+  registraPasso({tipo:"serie", prima, aggiunte, d:rif.d, g:rif.g});
+}
+function annullaPasso(){
+  if (soloLettura() || !storia.length) return;
+  const p = storia.pop();
+  inAnnulla = true;
+  try {
+    if (p.tipo === "serie"){
+      const t = Date.now(), via = new Set(p.aggiunte);
+      serie.filter(s => via.has(s.id)).forEach(s => tombaSeduta(s, t));
+      serie = serie.filter(s => !via.has(s.id));
+      p.prima.forEach(v => {
+        const x = copiaJ(v); x.ts = t;
+        const i = serie.findIndex(s => s.id === x.id);
+        if (i >= 0) serie[i] = x;
+        else { serie.push(x); const k = x.g + "|" + x.d; if (tombe.sedute[k]) delete tombe.sedute[k][x.id]; }
+      });
+      salva.tombe(); salva.serie();
+      if (inModifica && !serie.some(s => s.id === inModifica)) annullaModifica(true);
+      renderTutto();
+      toast("Annullato: modifica alla seduta del " + dataBreve(p.d));
+    } else if (p.tipo === "pres"){
+      presModifica(p.scheda, p.data, p.inv);
+      toast("Annullato: presenze del " + dataBreve(p.data));
+    }
+  } finally { inAnnulla = false; }
+  vibra(10); aggiornaAnnulla();
+}
+function aggiornaAnnulla(){
+  const b = document.getElementById("annulla"); if (!b) return;
+  b.hidden = !storia.length || soloLettura();
+}
+fotografaSerie();
+document.getElementById("annulla").addEventListener("click", annullaPasso);
 const salva = {
-  serie: () => { Mem.scrivi(K.serie, serie); registraCambi(); },
+  serie: () => { Mem.scrivi(K.serie, serie); passoSerie(); registraCambi(); },
   pref: () => Mem.scrivi(K.pref, pref),
   modelli: () => { Mem.scrivi(K.modelli, modelli); segnaAltro(); },
   note: () => Mem.scrivi(K.note, note),
@@ -2899,7 +2957,7 @@ function impostaModo(m){
   if (pref.modo === m) return;
   pref.modo = m; salva.pref();
   if (m === "guardo"){ annullaModifica(true); inserimento = null; chiudiFoglio(); }
-  applicaModo(); renderTutto();
+  applicaModo(); renderTutto(); aggiornaAnnulla();
   toast(m === "guardo" ? "Solo lettura: niente si può cambiare" : "Puoi scrivere e modificare");
   if (m === "scrivo" && foglioPronto()) pianificaInvio(500);
 }
@@ -3097,6 +3155,7 @@ function applicaVoci(voci){
   Mem.scrivi(K.serie, serie); Mem.scrivi(K.note, note); Mem.scrivi(K.obiettivi, obiettivi); Mem.scrivi(K.gare, gare);
   Mem.scrivi(K.modelli, modelli); salva.tombe(); salva.pref(); salva.coda();
   impronte = improntaSedute();
+  fotografaSerie();   // ciò che arriva dagli altri dispositivi non è un passo da annullare
   return cambiate;
 }
 
@@ -3407,6 +3466,12 @@ function presModifica(nomeScheda, data, patch, senzaDisegno){
   if (soloLettura()) return;
   const r = presMap[nomeScheda], g = r && r.m[data];
   if (!g) return;
+  // il passo per "Annulla": com'era prima ciò che questa modifica tocca
+  const inv = {cambi:{}};
+  if (patch.a !== undefined) inv.a = g.a;
+  if (patch.n !== undefined) inv.n = g.n || "";
+  Object.keys(patch.cambi || {}).forEach(nome => { const i = r.sc.atleti.indexOf(nome); if (i >= 0) inv.cambi[nome] = g.s[i]; });
+  registraPasso({tipo:"pres", scheda:nomeScheda, data, inv});
   const k = nomeScheda + "|" + data, e = presCoda[k] = presCoda[k] || {cambi:{}};
   if (patch.a !== undefined) e.a = patch.a;
   if (patch.n !== undefined) e.n = patch.n;
