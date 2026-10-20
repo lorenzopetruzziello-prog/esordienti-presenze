@@ -3808,8 +3808,14 @@ window.addEventListener("load", () => {
 
   // altezza della testata
   const testa = document.querySelector(".testa");
-  const altezza = () => document.documentElement.style.setProperty("--alt-testa", testa.offsetHeight + "px");
-  new ResizeObserver(altezza).observe(testa); altezza();
+  // le barre fisse delle schermate (serie in preparazione, riepilogo presenze) si agganciano al bordo basso della testata
+  // com'è in quel momento: sotto di lei se resta ferma, in cima allo schermo se la testata scorre via
+  let rqAlt = 0;
+  const altezza = () => { rqAlt = 0; document.documentElement.style.setProperty("--alt-testa", Math.max(0, Math.round(testa.getBoundingClientRect().bottom)) + "px"); };
+  const pianificaAlt = () => { if (!rqAlt) rqAlt = requestAnimationFrame(altezza); };
+  new ResizeObserver(pianificaAlt).observe(testa); altezza();
+  window.addEventListener("scroll", pianificaAlt, {passive:true});
+  window.addEventListener("resize", pianificaAlt);
 
   /* la luce sul fondo si ferma mentre scorri: meno lavoro per il telefono proprio quando serve fluidità */
   let fermaLuce = 0;
