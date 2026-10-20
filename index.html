@@ -737,6 +737,14 @@ input,select,textarea,.campo,textarea.campo.diario{font-size:16px}
 .vista.attiva{animation:appare .18s ease-out}
 @keyframes appare{from{opacity:0}}
 
+/* Impostazioni → Consultazione: il manuale si apre a parte */
+.manuale{display:flex; align-items:center; gap:12px; min-height:56px; padding:6px 2px; color:inherit; text-decoration:none; border-radius:12px}
+.manuale > svg{width:28px; height:28px; flex:none; color:var(--en1)}
+.manuale-testo{flex:1; min-width:0}
+.manuale-testo b{display:block; font-size:16px}
+.manuale-testo small{display:block; color:var(--tenue); font-size:12.5px; line-height:1.35; margin-top:2px}
+.manuale .manuale-freccia{width:18px; height:18px; color:var(--tenue)}
+.manuale:active{background:rgba(63,224,238,.07)}
 /* compositore: anteprima della serie e "Aggiungi" fissi in alto mentre scorri le scelte */
 .comp-barra{position:sticky; top:var(--alt-testa, 56px); z-index:5; margin:10px -13px 6px; padding:9px 13px;
   background:var(--base-vetro); border-top:1px solid var(--vetro-bordo); border-bottom:1px solid var(--vetro-bordo); box-shadow:0 10px 18px -16px rgba(0,0,0,.7)}
@@ -946,6 +954,7 @@ body.calmo .pr-avanz i{transition:none}
     <symbol id="i-spunta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
     <symbol id="i-testo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 6h14M5 10h14M5 14h9M5 18h6"/></symbol>
     <symbol id="i-cond" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></symbol>
+    <symbol id="i-libro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 016.5 3H20v15H6.5A2.5 2.5 0 004 20.5z"/><path d="M4 20.5A2.5 2.5 0 006.5 23H20v-5"/><path d="M8 7.5h8M8 11h6"/></symbol>
     <symbol id="i-annulla" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></symbol>
     <symbol id="i-bacchetta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20L15 9M14 4v3M19.5 9.5h-3M17.5 5.5l-2 2M18 3l1 1"/></symbol>
     <symbol id="i-obiettivo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8" fill="currentColor"/></symbol>
@@ -1262,6 +1271,17 @@ body.calmo .pr-avanz i{transition:none}
         <button class="btn pericolo" id="canc-gruppo">Cancella le serie del gruppo</button>
         <button class="btn pericolo" id="canc-tutto">Cancella tutto</button>
       </div>
+    </div>
+  </div>
+  <!-- materiale da consultare: si apre a parte, la parte operativa dell'app resta quella -->
+  <div class="sez">
+    <div class="sez-testa"><h2>Consultazione</h2></div>
+    <div class="pannello">
+      <a class="manuale" href="docs/guida-tecnica-drill-2026-2027.pdf" target="_blank" rel="noopener">
+        <svg aria-hidden="true"><use href="#i-libro"/></svg>
+        <span class="manuale-testo"><b>Guida tecnica e archivio drill</b><small>Stagione 2026/2027 · obiettivi per categoria e 38 esercizi per Esordienti A e B · PDF</small></span>
+        <svg class="manuale-freccia" aria-hidden="true"><use href="#i-dx"/></svg>
+      </a>
     </div>
   </div>
 </section>
