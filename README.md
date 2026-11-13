@@ -67,6 +67,11 @@ Ogni dispositivo si collega una volta; poi l'app tiene tutto allineato.
   l'allenamento c'è stato (solo quelli contano nelle percentuali).
 - Nell'app: scheda **Presenze** → scegli il gruppo e il giorno → spunta o croce per ogni atleta.
   Se segni qualcuna, "Allenamento svolto" si accende da solo.
+- Toccando il **nome** di un'atleta (nell'elenco del giorno o nella classifica) si apre la sua scheda:
+  percentuale in stagione e nelle ultime 4 settimane, la settimana aperta giorno per giorno,
+  il calendario delle ultime 12 settimane e l'elenco delle assenze. Per segnare si usano spunta e croce.
+- In fondo a Presenze, **Andamento dei gruppi**: la presenza media di ogni gruppo settimana per settimana
+  (presenti / allenamenti svolti × atlete), con la media di stagione e delle ultime 4 settimane.
 - Ogni tocco parte dopo meno di un secondo e invia solo ciò che è cambiato, atleta per atleta:
   due telefoni che lavorano sullo stesso giorno non si sovrascrivono.
   Senza rete le modifiche restano sul telefono e partono appena torna il collegamento.

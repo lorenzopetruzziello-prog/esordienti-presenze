@@ -711,6 +711,46 @@ body.in-pres #gruppi{display:none}
 .pr-fr .det{grid-column:2 / 4; display:flex; align-items:center; gap:10px; font-size:13px; color:var(--tenue)}
 .pr-fr .barra{flex:1; height:8px; border-radius:4px; background:var(--pozzo); overflow:hidden}
 .pr-fr .barra i{display:block; height:100%; border-radius:4px; background:var(--en1)}
+
+/* scheda atleta e andamento dei gruppi */
+.pr-fr[role="button"]{cursor:pointer}
+.pr-nome{background:none; border:0; padding:0; text-align:left; color:inherit; font:inherit}
+.at-testa{display:flex; align-items:flex-start; gap:10px}
+.at-testa h3{flex:1; min-width:0}
+.at-num{display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; margin:6px 0 4px}
+.at-num > div{background:var(--pozzo); border-radius:12px; padding:9px 11px}
+.at-num small{display:block; color:var(--tenue); font-size:12px}
+.at-num b{display:block; font-family:var(--fd); font-stretch:var(--stretto); font-weight:800; font-size:26px; line-height:1.1}
+.at-num span{display:block; color:var(--tenue); font-size:12px; font-variant-numeric:tabular-nums}
+.at-num .su{color:var(--ok)} .at-num .giu{color:var(--gap)}
+.at-h{font-size:12.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--tenue); margin:15px 0 7px; display:flex; justify-content:space-between; gap:8px}
+.at-h span{font-weight:500; letter-spacing:0; text-transform:none}
+.at-sett{display:grid; grid-template-columns:repeat(7, 1fr); gap:5px}
+.at-sett > div{text-align:center; font-size:11.5px; color:var(--tenue)}
+.at-q{display:grid; place-items:center; aspect-ratio:1; border-radius:6px; background:var(--pozzo); color:transparent; margin-top:3px}
+.at-q svg{width:58%; height:58%}
+.at-q.ok{background:var(--ok); color:#04202A} .at-q.no{background:var(--gap); color:#fff}
+.at-q.vuoto{background:transparent; box-shadow:inset 0 0 0 1.5px var(--en2)}
+.at-q.niente{opacity:.45}
+.at-griglia{display:grid; gap:3px; align-items:center; font-size:10px; color:var(--tenue); font-variant-numeric:tabular-nums; text-align:center}
+.at-griglia .at-q{margin:0; border-radius:4px}
+.at-griglia .et{text-align:left; font-size:11px}
+.at-griglia .me{line-height:1.05} .at-griglia .me b{display:block; font-weight:600; color:var(--gesso)}
+.at-griglia .pc{font-weight:700; color:var(--gesso)}
+.at-leg{display:flex; flex-wrap:wrap; gap:4px 12px; margin-top:8px; font-size:12px; color:var(--tenue)}
+.at-leg i{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:-1px}
+.at-ass{display:flex; flex-wrap:wrap; gap:6px}
+.at-ass span{border:1px solid var(--linea); border-radius:9px; padding:4px 9px; font-size:13px}
+.gr-svg{display:block; width:100%; height:auto; overflow:visible}
+.gr-svg text{font-family:var(--f); font-size:10px; fill:var(--tenue)}
+.gr-svg .gl{stroke:var(--linea2); stroke-width:1}
+.gr-svg path{fill:none; stroke-linecap:round; stroke-linejoin:round}
+.gr-tab{display:grid; grid-template-columns:1fr auto auto; gap:7px 14px; align-items:baseline; margin-top:12px; font-size:14px}
+.gr-tab .th{font-size:11.5px; color:var(--tenue); text-align:right}
+.gr-tab .n{font-family:var(--fd); font-stretch:var(--stretto); font-weight:800; font-size:19px; text-align:right; font-variant-numeric:tabular-nums}
+.gr-tab .chi i{display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:8px}
+.gr-tab .chi.sel{font-weight:700}
+.gr-tab small{color:var(--tenue); font-size:11.5px; font-weight:400}
 /* barra in basso: 6 voci, il testo resta compatto per starci su ogni telefono */
 .navbar button{font-size:11px}
 /* campi a 16px: sotto questa misura l'iPhone ingrandisce la pagina quando ci si tocca dentro */
@@ -3529,7 +3569,7 @@ function presAggiornaSul(nomeScheda, data){
     riga.querySelector(".pr-b.ok").setAttribute("aria-pressed", String(codice === "1"));
     riga.querySelector(".pr-b.no").setAttribute("aria-pressed", String(codice === "2"));
     const nome = riga.querySelector(".pr-nome");
-    nome.setAttribute("aria-label", (codice === "0" ? "Da segnare, " : "") + "segna presente: " + q.nome);
+    nome.setAttribute("aria-label", (codice === "0" ? "Da segnare, " : "") + "andamento di " + q.nome);
     const sotto = nome.querySelector("small");
     if (sotto) sotto.replaceChildren(q.cat ? q.cat + (tot ? " · " : "") : "", ...(tot ? [conti.p[i] + "/" + tot + " · ", el("span", {class:"pr-pct"}, pct(conti.p[i], tot) + "%")] : []));
   });
@@ -3621,6 +3661,125 @@ function aggiornaPresStato(){
   else if (presStato.caricando) s.textContent = "aggiorno";
   else if (presStato.ultimo){ s.textContent = "sul foglio"; s.classList.add("ok"); }
   else s.textContent = "";
+}
+
+/* ================= andamento: scheda dell'atleta e grafico dei gruppi =================
+   Tutto calcolato dalle schede già lette dal foglio: nessuna chiamata in più. Contano solo gli allenamenti svolti fino a oggi. */
+const PR_SETT = 12;   // settimane mostrate, l'ultima è quella in corso
+const PR_COLORI = {"ESORDIENTI A":"en1", "ESORDIENTI B":"en2", "ESORDIENTI C":"ra", "PREAGONISTI":"fa"};
+function presSettimane(sc, n){
+  const og = oggi(), l0 = lunediDi(og), out = [], ix = {};
+  for (let k = n - 1; k >= 0; k--){ const l = piuGiorni(l0, -7 * k); ix[l] = out.length; out.push({l, gg:[]}); }
+  (sc.giorni || []).forEach(g => { if (g.a !== "1" || g.d > og) return; const i = ix[lunediDi(g.d)]; if (i !== undefined) out[i].gg.push(g); });
+  return out;
+}
+const presContaUno = t => { let n = 0; for (let i = 0; i < t.length; i++) if (t[i] === "1") n++; return n; };
+/* presenza media del gruppo su un insieme di allenamenti: presenti / (allenamenti x atlete); null se non ce ne sono */
+function presMediaGruppo(sc, giorni){
+  const posti = giorni.length * sc.atleti.length;
+  return posti ? giorni.reduce((t, g) => t + presContaUno(g.s.slice(0, sc.atleti.length)), 0) / posti * 100 : null;
+}
+const presQuadro = (cl, ic, et) => el("div", {class:"at-q " + cl, title:et || null}, ic ? icona(ic) : null);
+function presStatoGiorno(g, i, og){
+  if (!g || g.a !== "1" || g.d > og) return ["niente", null, "nessun allenamento"];
+  return g.s[i] === "1" ? ["ok", "i-ok", "presente"] : g.s[i] === "2" ? ["no", "i-no", "assente"] : ["vuoto", null, "non segnata"];
+}
+function apriAtleta(nomeScheda, brutto){
+  const r = presMap[nomeScheda], sc = r && r.sc, i = sc ? sc.atleti.indexOf(brutto) : -1;
+  if (i < 0) return;
+  const q = presNome(brutto), og = oggi(), conti = presConti(sc), tot = conti.fatti;
+  const fatti = sc.giorni.filter(g => g.a === "1" && g.d <= og);
+  const sett = presSettimane(sc, PR_SETT);
+  const u4 = sett.slice(-4).flatMap(w => w.gg), p4 = u4.filter(g => g.s[i] === "1").length;
+  const vS = pct(conti.p[i], tot), v4 = pct(p4, u4.length), mg = presMediaGruppo(sc, fatti);
+  // serie in corso: quante presenze (o assenze) di fila fino all'ultimo allenamento segnato
+  let fila = 0, tipo = "";
+  for (let k = fatti.length - 1; k >= 0; k--){ const c = fatti[k].s[i]; if (c === "0") continue; if (!tipo) tipo = c; if (c !== tipo) break; fila++; }
+  const assenze = fatti.filter(g => g.s[i] === "2").reverse();
+  const nomeG = (PR_TAB.find(t => t[0] === nomeScheda) || [0, nomeScheda])[1];
+
+  apriFoglio(c => {
+    const diff = v4 - vS;
+    c.append(
+      el("div", {class:"at-testa"}, el("h3", null, q.nome), el("button", {class:"btn piccolo", "data-fuoco":true, onclick:chiudiFoglio}, "Chiudi")),
+      el("p", {class:"sott"}, nomeG + (q.cat ? " · " + q.cat : "") + " · " + tot + (tot === 1 ? " allenamento svolto" : " allenamenti svolti")));
+    if (!tot){ c.append(el("div", {class:"pr-vuoto"}, "Nessun allenamento segnato finora.")); return; }
+    c.append(el("div", {class:"at-num"},
+      el("div", null, el("small", null, "Stagione"), el("b", null, vS + "%"), el("span", null, conti.p[i] + " su " + tot + (mg === null ? "" : " · gruppo " + Math.round(mg) + "%"))),
+      el("div", null, el("small", null, "Ultime 4 settimane"), el("b", null, u4.length ? v4 + "%" : "–"),
+        el("span", {class:u4.length && diff >= 5 ? "su" : u4.length && diff <= -5 ? "giu" : ""}, u4.length ? p4 + " su " + u4.length + (diff >= 5 ? " · in salita" : diff <= -5 ? " · in calo" : " · stabile") : "nessun allenamento")),
+      el("div", null, el("small", null, "Assenze"), el("b", null, conti.a[i]), el("span", null, tot - conti.p[i] - conti.a[i] ? (tot - conti.p[i] - conti.a[i]) + (tot - conti.p[i] - conti.a[i] === 1 ? " non segnata" : " non segnate") : "in stagione")),
+      el("div", null, el("small", null, "Di fila"), el("b", null, fila || "–"), el("span", {class:tipo === "2" && fila > 1 ? "giu" : ""}, !fila ? "mai segnata" : tipo === "1" ? (fila === 1 ? "presenza" : "presenze") : (fila === 1 ? "assenza" : "assenze")))));
+
+    /* la settimana aperta nella schermata */
+    const l = lunediDi(presSel.d), riga = el("div", {class:"at-sett"});
+    for (let k = 0; k < 7; k++){
+      const d = piuGiorni(l, k), st = presStatoGiorno(r.m[d], i, og);
+      riga.append(el("div", {"aria-label":dataLunga(d) + ": " + st[2]}, GIORNI[k] + " " + daIso(d).getDate(), presQuadro(st[0], st[1])));
+    }
+    c.append(el("div", {class:"at-h"}, "Settimana del " + dataBreve(l)), riga);
+
+    /* calendario delle ultime settimane: una colonna per settimana, una riga per giorno di allenamento */
+    const usati = [0, 1, 2, 3, 4, 5, 6].filter(k => sett.some(w => w.gg.some(g => dow(g.d) === k)));
+    if (usati.length){
+      const gr = el("div", {class:"at-griglia", style:"grid-template-columns:26px repeat(" + sett.length + ", 1fr)"});
+      gr.append(el("span"));
+      let mese = -1;
+      sett.forEach(w => { const d = daIso(w.l), m = d.getMonth(); gr.append(el("span", {class:"me"}, el("b", null, m !== mese ? MESI[m] : " "), d.getDate())); mese = m; });
+      usati.forEach(k => {
+        gr.append(el("span", {class:"et"}, GIORNI[k]));
+        sett.forEach(w => { const d = piuGiorni(w.l, k), st = presStatoGiorno(r.m[d], i, og); gr.append(presQuadro(st[0], null, dataBreve(d) + ": " + st[2])); });
+      });
+      gr.append(el("span", {class:"et"}, "%"));
+      sett.forEach(w => gr.append(el("span", {class:"pc"}, w.gg.length ? pct(w.gg.filter(g => g.s[i] === "1").length, w.gg.length) : "·")));
+      c.append(el("div", {class:"at-h"}, "Ultime " + sett.length + " settimane", el("span", null, "% di presenza per settimana")), gr,
+        el("div", {class:"at-leg"}, el("span", null, el("i", {style:"background:var(--ok)"}), "presente"), el("span", null, el("i", {style:"background:var(--gap)"}), "assente"),
+          el("span", null, el("i", {style:"box-shadow:inset 0 0 0 1.5px var(--en2)"}), "non segnata"), el("span", null, el("i", {style:"background:var(--pozzo)"}), "nessun allenamento")));
+    }
+
+    c.append(el("div", {class:"at-h"}, "Assenze", el("span", null, assenze.length ? assenze.length + " in stagione, dalla più recente" : "")),
+      assenze.length ? el("div", {class:"at-ass"}, assenze.map(g => el("span", null, GIORNI[dow(g.d)] + " " + dataBreve(g.d))))
+        : el("div", {class:"pr-vuoto", style:"text-align:left; padding:0"}, "Nessuna assenza segnata."));
+  });
+}
+
+/* presenza media di ogni gruppo, settimana per settimana: una linea per gruppo, quello aperto è in evidenza */
+function presGraficoGruppi(){
+  const og = oggi();
+  const gruppi = PR_TAB.map(([nome, corto]) => {
+    const r = presMap[nome], sc = r && r.sc;
+    if (!sc || sc.manca || !sc.atleti.length) return null;
+    const sett = presSettimane(sc, PR_SETT), fatti = sc.giorni.filter(g => g.a === "1" && g.d <= og);
+    return {nome, corto, col:"var(--" + PR_COLORI[nome] + ")", n:fatti.length, punti:sett.map(w => presMediaGruppo(sc, w.gg)),
+      stagione:presMediaGruppo(sc, fatti), u4:presMediaGruppo(sc, sett.slice(-4).flatMap(w => w.gg)), lun:sett.map(w => w.l)};
+  }).filter(g => g && g.n);
+  if (!gruppi.length) return el("div", {class:"pr-vuoto"}, "Nessun allenamento segnato finora.");
+  const N = PR_SETT, lun = gruppi[0].lun, tutti = gruppi.flatMap(g => g.punti.filter(v => v !== null));
+  const W = 340, H = 168, L = 28, R = 8, T = 8, B = 22;
+  const y0 = tutti.length ? Math.min(80, Math.floor(Math.min(...tutti) / 20) * 20) : 0;
+  const X = k => L + (W - L - R) * k / (N - 1), Y = v => T + (H - T - B) * (1 - (v - y0) / (100 - y0));
+  let h = "";
+  for (let k = 0; k <= 4; k++){ const v = y0 + (100 - y0) * k / 4, y = Y(v).toFixed(1); h += '<line class="gl" x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '"/><text x="' + (L - 5) + '" y="' + y + '" text-anchor="end" dominant-baseline="middle">' + Math.round(v) + '%</text>'; }
+  lun.forEach((l, k) => { if ((N - 1 - k) % 2 === 0) h += '<text x="' + X(k).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="' + (k === N - 1 ? "end" : "middle") + '">' + dataBreve(l) + '</text>'; });
+  // il gruppo aperto si disegna per ultimo, sopra gli altri
+  gruppi.slice().sort((a, b) => (a.nome === presSel.g) - (b.nome === presSel.g)).forEach(g => {
+    const sel = g.nome === presSel.g; let d = "", penna = false, punti = "";
+    g.punti.forEach((v, k) => {
+      if (v === null){ penna = false; return; }
+      const x = X(k).toFixed(1), y = Y(v).toFixed(1);
+      d += (penna ? "L" : "M") + x + " " + y; penna = true;
+      punti += '<circle cx="' + x + '" cy="' + y + '" r="' + (sel ? 3 : 2) + '" style="fill:' + g.col + '"/>';
+    });
+    h += '<g' + (sel ? "" : ' opacity=".7"') + '><path d="' + d + '" style="stroke:' + g.col + '; stroke-width:' + (sel ? 2.8 : 1.6) + '"/>' + punti + '</g>';
+  });
+  const p = v => v === null ? "–" : Math.round(v) + "%";
+  const tab = el("div", {class:"gr-tab"}, el("span"), el("span", {class:"th"}, "stagione"), el("span", {class:"th"}, "ultime 4 sett."));
+  gruppi.forEach(g => tab.append(
+    el("span", {class:"chi" + (g.nome === presSel.g ? " sel" : "")}, el("i", {style:"background:" + g.col}), g.corto, " ", el("small", null, g.n + " all.")),
+    el("span", {class:"n"}, p(g.stagione)), el("span", {class:"n"}, p(g.u4))));
+  return el("div", null,
+    el("div", {role:"img", "aria-label":"Presenza media per settimana: " + gruppi.map(g => g.corto + " " + p(g.stagione) + " in stagione").join(", "),
+      html:'<svg class="gr-svg" viewBox="0 0 ' + W + ' ' + H + '">' + h + '</svg>'}), tab);
 }
 
 /* riepilogo del giorno, fisso in alto mentre si scorre l'elenco: numeri e barra presenti / assenti / da segnare.
@@ -3720,9 +3879,9 @@ function renderPresenze(){
       presModifica(sc.nome, d, patch);
     };
     lista.append(el("div", {class:"pr-riga" + (codice === "0" ? " da-segnare" : "")},
-      // anche il nome è un bersaglio: un tocco lo segna presente (il gesto più frequente).
+      // il nome apre la scheda dell'atleta (settimana, ultime settimane, assenze); si segna con spunta e croce.
       // È un vero pulsante: si raggiunge da tastiera e lo screen reader legge anche "da segnare".
-      el("button", {type:"button", class:"pr-nome", disabled:ro, "aria-label":(codice === "0" ? "Da segnare, " : "") + "segna presente: " + q.nome, onclick:() => tocca("1")},
+      el("button", {type:"button", class:"pr-nome", "aria-label":(codice === "0" ? "Da segnare, " : "") + "andamento di " + q.nome, onclick:() => apriAtleta(sc.nome, brutto)},
         el("b", null, q.nome), sotto),
       el("div", {class:"pr-sc"},
         el("button", {class:"pr-b ok", "aria-pressed":String(codice === "1"), "aria-label":"Presente: " + q.nome, disabled:ro, onclick:() => tocca("1")}, icona("i-ok")),
@@ -3754,12 +3913,14 @@ function renderPresenze(){
 
   /* frequenza nella stagione: classifica dalla più presente alla meno presente */
   const tot = conti.fatti;
-  const classifica = sc.atleti.map((brutto, i) => ({q:presNome(brutto), p:conti.p[i], a:conti.a[i], v:tot ? conti.p[i] / tot : 0}))
+  const classifica = sc.atleti.map((brutto, i) => ({brutto, q:presNome(brutto), p:conti.p[i], a:conti.a[i], v:tot ? conti.p[i] / tot : 0}))
     .sort((x, y) => (y.v - x.v) || (y.p - x.p) || x.q.nome.localeCompare(y.q.nome, "it"));
   const elenco = el("div");
   classifica.forEach((x, n) => {
     const v = Math.round(x.v * 100);
-    elenco.append(el("div", {class:"pr-fr"},
+    const apri = () => apriAtleta(sc.nome, x.brutto);
+    elenco.append(el("div", {class:"pr-fr", role:"button", tabindex:"0", "aria-label":"Andamento di " + x.q.nome + ", " + v + "%", onclick:apri,
+      onkeydown:e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); apri(); } }},
       el("span", {class:"pos"}, n + 1),
       el("span", {class:"chi"}, x.q.nome),
       el("span", {class:"perc"}, v + "%"),
@@ -3769,6 +3930,9 @@ function renderPresenze(){
   c.append(el("div", {class:"sez"},
     el("div", {class:"sez-testa"}, el("h2", null, "Frequenza in stagione"), el("span", {class:"num"}, tot + (tot === 1 ? " allenamento" : " allenamenti"))),
     el("div", {class:"pannello"}, tot ? elenco : el("div", {class:"pr-vuoto"}, "Nessun allenamento segnato finora."))));
+  c.append(el("div", {class:"sez"},
+    el("div", {class:"sez-testa"}, el("h2", null, "Andamento dei gruppi"), el("span", {class:"num"}, PR_SETT + " settimane")),
+    el("div", {class:"pannello"}, presGraficoGruppi())));
   aggiornaPresStato();
 }
 $("#pr-prec").addEventListener("click", () => { presSel.d = piuGiorni(presSel.d, -7); renderPresenze(); });
