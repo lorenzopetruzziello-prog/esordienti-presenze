@@ -936,38 +936,38 @@ body.calmo .pr-avanz i{transition:none}
 .ed.chiude .ed-fondo{opacity:0; transition:opacity var(--d-1) var(--e-dentro)}
 .ed.chiude .ed-corpo{opacity:0; transform:translateY(24px); transition:opacity var(--d-1) var(--e-dentro), transform var(--d-1) var(--e-dentro)}
 
-.ed-testa{display:flex; align-items:center; gap:10px; padding:16px 12px 10px; border-bottom:1px solid var(--vetro-bordo); flex:none}
+.ed-testa{display:flex; align-items:center; gap:10px; padding:14px 10px 7px; border-bottom:1px solid var(--vetro-bordo); flex:none}
 .ed-tit{flex:1; min-width:0; text-align:center}
-.ed-tit h2{font-family:var(--fd); font-stretch:80%; font-weight:800; font-size:20px; line-height:1.1; letter-spacing:-.01em}
+.ed-tit h2{font-family:var(--fd); font-stretch:80%; font-weight:800; font-size:18px; line-height:1.1; letter-spacing:-.01em}
 .ed-tit p{font-size:12.5px; color:var(--tenue); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-variant-numeric:tabular-nums}
-.ed-testa .tondo{width:44px; height:44px; border-radius:14px}
+.ed-testa .tondo{width:40px; height:40px; min-height:40px; min-width:40px; border-radius:12px}
 .ed-testa .tondo svg{width:18px; height:18px}
-.ed-scorre{flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; padding:14px 14px 20px}
+.ed-scorre{flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; padding:10px 12px 14px}
 
 /* la serie come verrà scritta */
-.ed-ap{position:relative; padding:12px 14px 13px 19px; border-radius:18px; background:rgba(1,16,22,.45); border:1px solid var(--vetro-bordo); overflow:hidden}
+.ed-ap{position:relative; padding:8px 12px 9px 17px; border-radius:18px; background:rgba(1,16,22,.45); border:1px solid var(--vetro-bordo); overflow:hidden}
 :where(:root[data-theme="sole"],:root[data-theme="light"]) .ed-ap{background:var(--pozzo); border-color:transparent}
 .ed-ap::before{content:""; position:absolute; left:0; top:0; bottom:0; width:6px; background:var(--c, var(--linea)); box-shadow:0 0 18px var(--c, transparent); transition:background-color var(--d-2) var(--e-stato)}
-.ed-ap-blocco{display:flex; align-items:center; gap:7px; font-size:12.5px; font-weight:700; color:var(--tenue); letter-spacing:.03em; text-transform:uppercase}
+.ed-ap-blocco{display:flex; align-items:center; gap:7px; font-size:11.5px; font-weight:700; color:var(--tenue); letter-spacing:.03em; text-transform:uppercase}
 .ed-ap-blocco i{width:9px; height:9px; border-radius:3px; background:var(--cb); flex:none}
-.ed-ap-riga{display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-top:6px}
-.ed-ap-serie{min-width:0; font-family:var(--fd); font-stretch:76%; font-weight:800; font-size:34px; line-height:1; letter-spacing:-.02em; overflow-wrap:anywhere}
+.ed-ap-riga{display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-top:3px}
+.ed-ap-serie{min-width:0; font-family:var(--fd); font-stretch:76%; font-weight:800; font-size:27px; line-height:1; letter-spacing:-.02em; overflow-wrap:anywhere}
 .ed-ap-serie .st{color:var(--c); margin-left:.18em}
-.ed-ap-serie .vuoto{font-family:var(--f); font-stretch:100%; font-size:17px; font-weight:650; letter-spacing:0; color:var(--tenue)}
+.ed-ap-serie .vuoto{font-family:var(--f); font-stretch:100%; font-size:15px; font-weight:650; letter-spacing:0; color:var(--tenue)}
 .ed-ap-metri{display:flex; align-items:baseline; gap:3px; flex:none}
-.ed-ap-metri .num{font-size:36px; line-height:.88}
-.ed-ap-metri small{font-family:var(--fd); font-stretch:var(--stretto); font-weight:700; color:var(--tenue); font-size:16px}
-.ed-ap-det{font-size:13.5px; color:var(--tenue); margin-top:7px; line-height:1.35}
+.ed-ap-metri .num{font-size:29px; line-height:.88}
+.ed-ap-metri small{font-family:var(--fd); font-stretch:var(--stretto); font-weight:700; color:var(--tenue); font-size:14px}
+.ed-ap-det{font-size:12.5px; color:var(--tenue); margin-top:4px; line-height:1.3}
 .ed-ap-det:empty{display:none}
 
 /* dove va la nuova serie, strumenti della serie in modifica */
-.ed-dove{display:flex; align-items:center; gap:8px; margin-top:10px; padding:5px 5px 5px 12px; border-radius:13px;
+.ed-dove{display:flex; align-items:center; gap:8px; margin-top:8px; padding:5px 5px 5px 12px; border-radius:13px;
   border:1.5px dashed color-mix(in srgb, var(--en1) 70%, transparent); background:color-mix(in srgb, var(--en1) 8%, transparent); color:var(--en1); font-size:13.5px; font-weight:650}
 .ed-dove svg{width:17px; height:17px; flex:none}
 .ed-dove span{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .ed-dove .btn{min-height:36px; padding:5px 10px; font-size:12.5px; border-radius:10px; color:var(--gesso)}
-.ed-strumenti{display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin-top:16px; padding-top:16px; border-top:1px solid var(--vetro-bordo)}
-.ed-strumenti button{display:flex; align-items:center; justify-content:center; gap:6px; min-height:46px; min-width:0; padding:6px 4px; border-radius:13px;
+.ed-strumenti{display:grid; grid-template-columns:repeat(3, 1fr); gap:5px; margin-top:12px; padding-top:12px; border-top:1px solid var(--vetro-bordo)}
+.ed-strumenti button{display:flex; align-items:center; justify-content:center; gap:6px; min-height:40px; min-width:0; padding:5px 4px; border-radius:11px;
   border:1px solid var(--vetro-bordo); background:rgba(255,255,255,.045); color:var(--gesso); font-size:13px; font-weight:650; white-space:nowrap;
   transition:transform var(--d-1) var(--e-fuori), opacity var(--d-2) var(--e-stato)}
 :where(:root[data-theme="sole"],:root[data-theme="light"]) .ed-strumenti button{background:#fff}
@@ -976,98 +976,86 @@ body.calmo .pr-avanz i{transition:none}
 .ed-strumenti button[disabled]{opacity:.35; pointer-events:none}
 
 /* scrivere a testo */
-.ed-testo{display:flex; align-items:center; gap:9px; margin-top:10px; padding:0 12px; min-height:48px; border-radius:14px;
+.ed-testo{display:flex; align-items:center; gap:9px; margin-top:8px; padding:0 11px; min-height:40px; border-radius:12px;
   background:rgba(1,16,22,.4); border:1px solid var(--vetro-bordo); cursor:text; transition:border-color var(--d-2) var(--e-stato), box-shadow var(--d-2) var(--e-stato)}
 :where(:root[data-theme="sole"],:root[data-theme="light"]) .ed-testo{background:#fff}
-.ed-testo svg{width:19px; height:19px; color:var(--tenue); flex:none}
-.ed-testo input{flex:1; min-width:0; border:0; background:transparent; outline:none; font-size:16px; font-weight:600; padding:12px 0; letter-spacing:.01em}
+.ed-testo svg{width:17px; height:17px; color:var(--tenue); flex:none}
+.ed-testo input{flex:1; min-width:0; min-height:0; border:0; background:transparent; outline:none; font-size:16px; font-weight:600; padding:8px 0; letter-spacing:.01em}
 .ed-testo input::placeholder{color:var(--tenue2); font-weight:500}
 .ed-testo:focus-within{border-color:var(--cloro); box-shadow:0 0 0 3px rgba(63,224,238,.18)}
 .ed-testo.errore{border-color:var(--gap); box-shadow:0 0 0 3px color-mix(in srgb, var(--gap) 18%, transparent)}
 
 /* le scelte */
-.ed-sez{margin-top:18px}
-.ed-et{display:block; font-size:12.5px; font-weight:700; color:var(--tenue); letter-spacing:.04em; text-transform:uppercase; margin:0 0 8px 2px}
+.ed-sez{margin-top:11px}
+.ed-et{display:block; font-size:11px; font-weight:700; color:var(--tenue); letter-spacing:.05em; text-transform:uppercase; margin:0 0 5px 2px}
+.ed-sez:not(.ed-riga) > .ed-et{display:flex; align-items:center; gap:5px; min-height:22px}
+.ed-piu{position:relative; margin-left:auto; display:inline-flex; align-items:center; gap:4px; height:22px; padding:0 9px 0 7px; border-radius:11px;
+  border:1px dashed var(--linea); background:transparent; color:var(--tenue); font-family:var(--f); font-size:11.5px; font-weight:650; letter-spacing:0; text-transform:none}
+.ed-piu::before{content:""; position:absolute; inset:-11px -6px}
+.ed-piu svg{width:11px; height:11px}
+.ed-piu:active{background:rgba(63,224,238,.1)}
 .ed-et span{font-weight:500; text-transform:none; letter-spacing:0; color:var(--tenue2); margin-left:5px}
-.ed-chips{display:grid; gap:7px}
-.ed-num{grid-template-columns:repeat(auto-fill, minmax(46px, 1fr))}
-.ed-blocchi{grid-template-columns:repeat(auto-fill, minmax(74px, 1fr))}
-.ed-stili{grid-template-columns:repeat(auto-fill, minmax(50px, 1fr))}
-.ed-testi{grid-template-columns:repeat(auto-fill, minmax(104px, 1fr))}
-.ec{position:relative; min-width:0; min-height:50px; padding:6px 4px; border-radius:14px; border:1px solid var(--vetro-bordo); background:rgba(255,255,255,.05); color:var(--gesso);
-  font-family:var(--fd); font-stretch:80%; font-weight:750; font-size:19px; line-height:1; display:flex; align-items:center; justify-content:center; gap:2px;
+.ed-chips{display:grid; gap:5px}
+.ed-num{grid-template-columns:repeat(auto-fill, minmax(40px, 1fr))}
+.ed-blocchi{grid-template-columns:repeat(auto-fill, minmax(72px, 1fr))}
+.ed-stili{grid-template-columns:repeat(auto-fill, minmax(48px, 1fr))}
+.ed-testi{grid-template-columns:repeat(auto-fill, minmax(78px, 1fr))}
+.ec{position:relative; min-width:0; min-height:40px; padding:4px 3px; border-radius:11px; border:1px solid var(--vetro-bordo); background:rgba(255,255,255,.05); color:var(--gesso);
+  font-family:var(--fd); font-stretch:80%; font-weight:750; font-size:17px; line-height:1; display:flex; align-items:center; justify-content:center; gap:2px;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; touch-action:manipulation;
   transition:transform var(--d-1) var(--e-fuori), background-color var(--d-2) var(--e-stato), color var(--d-2) var(--e-stato), border-color var(--d-2) var(--e-stato), box-shadow var(--d-2) var(--e-stato)}
 :where(:root[data-theme="sole"],:root[data-theme="light"]) .ec{background:#fff; box-shadow:0 1px 2px rgba(6,60,80,.06)}
 .ec:active{transform:scale(.94)}
 .ec[aria-pressed="true"]{background:linear-gradient(135deg, var(--cloro), var(--cloro2)); color:var(--testo-cloro); border-color:transparent; box-shadow:var(--bagliore)}
 .ec .x{font-size:.7em; opacity:.6; margin-right:1px}
-.ec.piu{border-style:dashed; background:transparent; color:var(--tenue); font-family:var(--f); font-stretch:100%; font-size:22px; font-weight:500; box-shadow:none}
+.ec.piu{border-style:dashed; background:transparent; color:var(--tenue); font-family:var(--f); font-stretch:100%; font-size:19px; font-weight:500; box-shadow:none}
 .ec.premuto{transform:scale(.92); box-shadow:0 0 0 2px var(--gap); transition:transform .5s ease-in}
-.ec.t{font-family:var(--f); font-stretch:100%; font-weight:650; font-size:14.5px; padding:6px 8px}
-.ed-stili .ec{flex-direction:column; gap:4px; min-height:60px}
-.ed-stili .ec b{font-size:21px; font-weight:800}
-.ed-stili .ec small{max-width:100%; overflow:hidden; text-overflow:ellipsis; font-family:var(--f); font-stretch:100%; font-size:11px; font-weight:600; color:var(--tenue)}
+.ec.t{font-family:var(--f); font-stretch:100%; font-weight:650; font-size:13px; padding:4px 5px; min-height:36px}
+.ed-stili .ec{flex-direction:column; gap:2px; min-height:46px}
+.ed-stili .ec b{font-size:18px; font-weight:800}
+.ed-stili .ec small{max-width:100%; overflow:hidden; text-overflow:ellipsis; font-family:var(--f); font-stretch:100%; font-size:10px; font-weight:600; color:var(--tenue)}
 .ed-stili .ec:not(.piu)::before{content:""; position:absolute; left:12px; right:12px; top:0; height:3px; border-radius:0 0 3px 3px; background:var(--c)}
 .ed-stili .ec[aria-pressed="true"]{background:var(--c); color:#03202A; box-shadow:0 10px 22px -12px var(--c)}
 .ed-stili .ec[aria-pressed="true"] small{color:rgba(3,32,42,.78)}
 .ed-stili .ec[aria-pressed="true"]::before{opacity:0}
 :where(:root[data-theme="sole"],:root[data-theme="light"]) .ed-stili .ec[aria-pressed="true"]{color:#fff}
 :where(:root[data-theme="sole"],:root[data-theme="light"]) .ed-stili .ec[aria-pressed="true"] small{color:rgba(255,255,255,.88)}
-.ed-blocchi .ec{font-family:var(--f); font-stretch:100%; font-weight:650; font-size:14.5px; justify-content:flex-start; padding:6px 8px 6px 10px; gap:7px; min-height:46px}
+.ed-blocchi .ec{font-family:var(--f); font-stretch:100%; font-weight:650; font-size:13.5px; justify-content:flex-start; padding:4px 6px 4px 9px; gap:6px; min-height:38px}
 .ed-blocchi .ec.piu{justify-content:center}
 .ed-blocchi .ec i{width:8px; height:8px; border-radius:3px; background:var(--c); flex:none}
 .ed-blocchi .ec span{min-width:0; overflow:hidden; text-overflow:ellipsis}
 .ed-blocchi .ec[aria-pressed="true"] i{background:currentColor; opacity:.75}
-.ed-freq{display:flex; gap:7px; overflow-x:auto; margin:0 -14px; padding:0 14px 2px; scrollbar-width:none; scroll-snap-type:x proximity}
+.ed-freq{display:flex; gap:5px; overflow-x:auto; margin:0 -12px; padding:0 12px 2px; scrollbar-width:none; scroll-snap-type:x proximity}
 .ed-freq::-webkit-scrollbar{display:none}
-.ed-freq .ec{flex:none; min-height:44px; padding:6px 13px 6px 15px; font-size:17px; scroll-snap-align:start; overflow:visible}
+.ed-freq .ec{flex:none; min-height:38px; padding:4px 12px 4px 14px; font-size:16px; scroll-snap-align:start; overflow:visible}
 .ed-freq .ec::before{content:""; position:absolute; left:0; top:9px; bottom:9px; width:4px; border-radius:0 3px 3px 0; background:var(--c)}
 
 /* il resto: giri, attrezzi, partenza, nota */
-.ed-altro{margin-top:18px; border-top:1px solid var(--vetro-bordo)}
-.ed-altro summary{list-style:none; display:flex; align-items:center; gap:10px; min-height:54px; padding:4px 2px; cursor:pointer; -webkit-user-select:none; user-select:none}
-.ed-altro summary::-webkit-details-marker{display:none}
-.ed-altro-t{font-weight:650; font-size:15px; flex:none}
-.ed-altro-v{flex:1; min-width:0; text-align:right; color:var(--cloro); font-size:13px; font-weight:650; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-:where(:root[data-theme="sole"],:root[data-theme="light"]) .ed-altro-v{color:var(--cloro2)}
-.ed-altro summary::after{content:""; flex:none; width:8px; height:8px; margin:0 6px 4px 2px; border-right:2px solid var(--tenue); border-bottom:2px solid var(--tenue); transform:rotate(45deg); transition:transform var(--d-2) var(--e-fuori)}
-.ed-altro[open] summary::after{transform:rotate(-135deg); margin-bottom:-4px}
-.ed-altro > .ed-sez:first-of-type{margin-top:6px}
-.ed-part-on{width:100%; min-height:50px; justify-content:flex-start; gap:10px; border-style:dashed; border-radius:14px; color:var(--tenue); font-size:15px}
-.ed-part-on svg{width:19px; height:19px}
-.ed-part-passo{display:grid; grid-template-columns:66px minmax(0,1fr) 66px 50px; gap:7px}
-.ed-part-b, .ed-part-via{min-height:54px; border-radius:14px; border:1px solid var(--vetro-bordo); background:rgba(255,255,255,.05); color:var(--gesso); padding:0;
-  font-family:var(--fd); font-stretch:80%; font-weight:800; font-size:18px; -webkit-user-select:none; user-select:none; touch-action:manipulation;
+.ed-altro{margin-top:11px; padding-top:1px; border-top:1px solid var(--vetro-bordo)}
+.ed-riga{display:grid; grid-template-columns:68px minmax(0,1fr); align-items:center; column-gap:8px}
+.ed-riga > .ed-et{margin:0 0 0 2px}
+.ed-part-on{width:100%; min-height:40px; justify-content:flex-start; gap:8px; border-style:dashed; border-radius:11px; color:var(--tenue); font-size:14px; padding:6px 11px}
+.ed-part-on svg{width:17px; height:17px}
+.ed-part-passo{display:grid; grid-template-columns:52px minmax(0,1fr) 52px 40px; gap:5px}
+.ed-part-b, .ed-part-via{min-height:40px; border-radius:11px; border:1px solid var(--vetro-bordo); background:rgba(255,255,255,.05); color:var(--gesso); padding:0;
+  font-family:var(--fd); font-stretch:80%; font-weight:800; font-size:16px; -webkit-user-select:none; user-select:none; touch-action:manipulation;
   display:grid; place-items:center; transition:transform var(--d-1) var(--e-fuori)}
 :where(:root[data-theme="sole"],:root[data-theme="light"]) :is(.ed-part-b, .ed-part-via){background:#fff}
 .ed-part-b:active, .ed-part-via:active, .ed-part-val:active{transform:scale(.95)}
-.ed-part-via{color:var(--tenue)} .ed-part-via svg{width:17px; height:17px}
-.ed-part-val{min-height:54px; border-radius:14px; border:1.5px solid var(--cloro); background:rgba(63,224,238,.09); color:var(--gesso); font-size:30px; padding:0; transition:transform var(--d-1) var(--e-fuori)}
-.ed-altro .campo{min-height:48px; border-radius:14px}
-.ed-aiuto{margin-top:20px; text-align:center; font-size:12.5px; color:var(--tenue2); line-height:1.45}
+.ed-part-via{color:var(--tenue)} .ed-part-via svg{width:15px; height:15px}
+.ed-part-val{min-height:40px; border-radius:11px; border:1.5px solid var(--cloro); background:rgba(63,224,238,.09); color:var(--gesso); font-size:22px; padding:0; transition:transform var(--d-1) var(--e-fuori)}
+.ed-altro .campo{min-height:40px; padding:7px 10px; border-radius:11px}
+.ed-aiuto{margin-top:12px; text-align:center; font-size:11.5px; color:var(--tenue2); line-height:1.4}
 
 /* in fondo: sempre a portata di pollice */
-.ed-piede{flex:none; display:flex; gap:8px; padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px)); border-top:1px solid var(--vetro-bordo)}
-.ed-piede .btn{min-height:54px; border-radius:16px; padding:10px 18px; font-size:15.5px}
-.ed-elimina{width:58px; padding:0 !important; flex:none; color:var(--gap); border-color:color-mix(in srgb, var(--gap) 45%, transparent) !important}
+.ed-piede{flex:none; display:flex; gap:8px; padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px)); border-top:1px solid var(--vetro-bordo)}
+.ed-piede .btn{min-height:48px; border-radius:14px; padding:8px 16px; font-size:15px}
+.ed-elimina{width:52px; padding:0 !important; flex:none; color:var(--gap); border-color:color-mix(in srgb, var(--gap) 45%, transparent) !important}
 .ed-elimina svg{width:21px; height:21px}
-.ed-ok{flex:1; min-height:54px; border-radius:16px; font-size:19px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ed-ok{flex:1; min-height:48px; border-radius:14px; font-size:18px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .ed-ok.fatto{background:linear-gradient(135deg, #57C08D, #2E9D6B) !important; color:#03202A; filter:none}
 :where(:root[data-theme="sole"],:root[data-theme="light"]) .ed-ok.fatto{color:#fff}
 
-/* telefoni bassi: anteprima e spazi più compatti, così le scelte stanno in vista */
-@media (max-height:720px){
-  .ed-testa{padding:14px 10px 8px}
-  .ed-scorre{padding-top:10px}
-  .ed-ap{padding:9px 12px 10px 17px}
-  .ed-ap-serie{font-size:28px} .ed-ap-metri .num{font-size:30px}
-  .ed-testo{min-height:44px; margin-top:8px}
-  .ed-sez{margin-top:13px}
-  .ec{min-height:46px} .ed-stili .ec{min-height:54px}
-  .ed-piede{padding-top:8px}
-  .ed-piede .btn, .ed-ok{min-height:50px}
-}
 @media (min-width:700px){
   .ed{align-items:center}
   .ed-corpo{border-radius:24px; border-bottom:1px solid var(--vetro-bordo); max-height:min(90%, 900px)}
@@ -1459,13 +1447,12 @@ body.calmo :is(.ec, .ed-strumenti button, .ed-part-b, .ed-part-via, .ed-part-val
       <div class="ed-sez"><div class="ed-et">Distanza <span>metri</span></div><div class="ed-chips ed-num" id="r-dist" role="group" aria-label="Distanza in metri"></div></div>
       <div class="ed-sez"><div class="ed-et">Stile</div><div class="ed-chips ed-stili" id="r-stile" role="group" aria-label="Stile"></div></div>
       <div class="ed-sez"><div class="ed-et">Blocco</div><div class="ed-chips ed-blocchi" id="r-blocco" role="group" aria-label="Blocco"></div></div>
-      <details class="ed-altro" id="ed-altro">
-        <summary><span class="ed-altro-t">Giri, attrezzi, partenza, nota</span><span class="ed-altro-v" id="ed-altro-v"></span></summary>
-        <div class="ed-sez"><div class="ed-et">Giri <span>ripete tutta la serie</span></div><div class="ed-chips ed-num" id="r-giri" role="group" aria-label="Giri"></div></div>
+      <div class="ed-altro" id="ed-altro">
+        <div class="ed-sez ed-riga"><div class="ed-et">Giri</div><div class="ed-chips ed-num" id="r-giri" role="group" aria-label="Giri: ripete tutta la serie"></div></div>
         <div class="ed-sez"><div class="ed-et">Attrezzi e modalità</div><div class="ed-chips ed-testi" id="r-attr" role="group" aria-label="Attrezzi e modalità"></div></div>
-        <div class="ed-sez"><div class="ed-et">Partenza</div>
+        <div class="ed-sez ed-riga"><div class="ed-et">Partenza</div>
           <div class="ed-part" id="ed-part">
-            <button class="btn ed-part-on" id="ed-part-on" type="button"><svg><use href="#i-orologio"/></svg><span id="ed-part-sugg">Aggiungi la partenza</span></button>
+            <button class="btn ed-part-on" id="ed-part-on" type="button"><svg><use href="#i-orologio"/></svg><span id="ed-part-sugg">Aggiungi</span></button>
             <div class="ed-part-passo" id="ed-part-passo" hidden>
               <button class="ed-part-b" id="ed-part-meno" type="button" aria-label="5 secondi in meno">−5"</button>
               <button class="ed-part-val num" id="ed-part-val" type="button" aria-label="Scrivi la partenza"></button>
@@ -1474,8 +1461,8 @@ body.calmo :is(.ec, .ed-strumenti button, .ed-part-b, .ed-part-via, .ed-part-val
             </div>
           </div>
         </div>
-        <div class="ed-sez"><label class="ed-et" for="nota">Nota</label><input class="campo" id="nota" type="text" autocomplete="off" maxlength="120" placeholder="es. respirazione ogni 3"></div>
-      </details>
+        <div class="ed-sez ed-riga"><label class="ed-et" for="nota">Nota</label><input class="campo" id="nota" type="text" autocomplete="off" maxlength="120" placeholder="es. respirazione ogni 3"></div>
+      </div>
       <div class="ed-strumenti" id="ed-strumenti" hidden></div>
       <p class="ed-aiuto">Tieni premuto un pulsante per toglierlo. Con + ne aggiungi uno tuo.</p>
     </div>
@@ -2187,12 +2174,17 @@ function costruisciRotaie(){
       pressioneLunga(b, () => togliVoce(cat, v));
       c.append(b);
     });
-    c.append(el("button", {type:"button", class:"ec piu", "aria-label":R.piu[0], title:R.piu[0], onclick:async () => {
+    // il "+" per una voce tua: accanto al titolo della sezione, così non occupa una riga di pulsanti
+    // (nelle righe con il titolo a sinistra, come Giri, resta in fondo ai pulsanti)
+    const sez = c.closest(".ed-sez"), et = sez && !sez.classList.contains("ed-riga") ? sez.querySelector(".ed-et") : null;
+    if (et) et.querySelectorAll(".ed-piu").forEach(x => x.remove());
+    const piu = el("button", {type:"button", class:et ? "ed-piu" : "ec piu", "aria-label":R.piu[0], title:R.piu[0], onclick:async () => {
       const v = await aggiungiVoce(cat, R.piu[2], R.piu[1], R.piu[0]);
       if (v === null || !edAperto) return;
       if (cat === "attr"){ if (!bozza.a.includes(v)) bozza.a.push(v); } else R.tap(v);
       costruisciRotaie(); dopoTocco();
-    }}, "+"));
+    }}, et ? [icona("i-piu"), "Aggiungi"] : "+");
+    (et || c).append(piu);
   });
   segnaRotaie();
 }
@@ -2230,7 +2222,6 @@ function nuovaBozza(){
   if (!vb.includes(b)) b = vb.includes("wu") && !rif ? "wu" : vb.includes("main") ? "main" : vb[0];
   return {gi:1, r:1, m:0, s:vs.includes("sl") ? "sl" : vs[0], z:"", b, a:[], p:0, n:""};
 }
-function apriAltro(v){ $("#ed-altro").open = !!v; }
 function apriEditor(o){
   if (soloLettura()) return;
   o = o || {};
@@ -2255,7 +2246,6 @@ function apriEditor(o){
   $("#cmd").value = bozza.m ? aTesto(bozza) : "";
   $(".ed-testo").classList.remove("errore");
   const ok = $("#aggiungi"); clearTimeout(ok._t); ok.classList.remove("fatto");
-  apriAltro(bozza.gi > 1 || bozza.a.length || bozza.p || bozza.n || pref.edAltro);
   const ed = $("#ed");
   if (!giaAperto){
     edRitorno = document.activeElement;
@@ -2336,13 +2326,6 @@ function renderEditor(){
     st.append(t("i-copia", "Duplica", edDuplica), t("i-su", "Sposta su", () => edSposta(-1), pos <= 0), t("i-giu", "Sposta giù", () => edSposta(1), pos < 0 || pos >= lista.length - 1),
       t("i-sopra", "Nuova sopra", () => edNuova(false)), t("i-sotto", "Nuova sotto", () => edNuova(true)), t("i-storico", "Storico", edStorico));
   }
-  // giri, attrezzi, partenza, nota: in breve accanto al titolo
-  const altro = [];
-  if (bozza.gi > 1) altro.push(bozza.gi + " giri");
-  if (bozza.a.length) altro.push(bozza.a.join(", "));
-  if (bozza.p) altro.push(fmtTempo(bozza.p));
-  if (bozza.n) altro.push("nota");
-  $("#ed-altro-v").textContent = altro.join(" · ");
   renderPartenza();
   // in fondo
   $("#ed-elimina").hidden = !mod;
@@ -2407,8 +2390,6 @@ $("#nota").addEventListener("input", () => {
   renderEditor();
 });
 $("#nota").addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); e.target.blur(); } });
-// "giri, attrezzi, partenza, nota" resta aperto o chiuso come l'hai lasciato
-$("#ed-altro summary").addEventListener("click", () => setTimeout(() => { pref.edAltro = $("#ed-altro").open; salva.pref(); }, 0));
 $("#aggiungi").addEventListener("click", () => aggiungi());
 $("#ed-chiudi").addEventListener("click", () => edChiudi());
 $("#ed-fondo").addEventListener("click", () => edChiudi());
